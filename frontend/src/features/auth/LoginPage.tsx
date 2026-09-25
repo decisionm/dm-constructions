@@ -4,8 +4,8 @@ import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
-  Eye, EyeOff, Mail, Lock, Globe, ChevronDown, X, Github, Users, ArrowUpRight, Pencil,
-  ShieldCheck, Zap, Brain, Info,
+  Eye, EyeOff, Mail, Lock, Globe, ChevronDown, X, Users,
+  ShieldCheck, Zap, Brain,
   FileSpreadsheet, CalendarClock, TrendingUp, Boxes, Database,
   BarChart3, Upload, FileCheck,
   Box, Ruler, Layers,
@@ -82,7 +82,6 @@ export function LoginPage() {
   // on the login card instead of the default OpenConstructionERP wordmark.
   const { mode: brandMode, logoDataUrl: brandLogo, companyName: brandName } =
     useBrandingStore();
-  const brandCustomised = brandMode === 'logo' || brandMode === 'text';
   // Pull the workspace brand from the server so an invited user sees it on this
   // very first (pre-auth) screen, not just the browser that set it (issue #272).
   // Public endpoint, best-effort: the card paints instantly from localStorage
@@ -106,8 +105,7 @@ export function LoginPage() {
   const [langOpen, setLangOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [brandOpen, setBrandOpen] = useState(false);
-  const [demoOpen, setDemoOpen] = useState(true);
-  const [demoHint, setDemoHint] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
   // The demo sign-in is shown by DEFAULT and only hidden when the server
   // explicitly reports demo is off (SEED_DEMO=false, or an admin turned it off
@@ -386,105 +384,31 @@ export function LoginPage() {
   }
 
   return (
-    <div className="relative grid h-screen grid-cols-1 lg:grid-cols-2 bg-surface-secondary overflow-hidden">
-      <AuthBackground />
-
-      {/* Local style block - premium glass variant + drifting orb keyframes
-          scoped to the login page. Pattern mirrors LoginPageNext.tsx. */}
-      <style>{`
-        .login-glass-pro {
-          background:
-            linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.62) 100%);
-          backdrop-filter: blur(28px) saturate(180%);
-          -webkit-backdrop-filter: blur(28px) saturate(180%);
-          border: 1px solid rgba(255, 255, 255, 0.85);
-          box-shadow:
-            0 36px 80px -28px rgba(14, 165, 233, 0.30),
-            0 14px 36px -12px rgba(15, 23, 42, 0.12),
-            0 2px 6px -1px rgba(15, 23, 42, 0.06),
-            inset 0 1px 0 rgba(255, 255, 255, 0.95),
-            inset 0 0 0 1px rgba(255, 255, 255, 0.35);
-        }
-        .dark .login-glass-pro {
-          background:
-            linear-gradient(135deg, rgba(22, 26, 36, 0.78) 0%, rgba(15, 17, 23, 0.66) 100%);
-          border-color: transparent;
-          box-shadow:
-            0 30px 80px -24px rgba(14, 165, 233, 0.35),
-            0 12px 40px -12px rgba(0, 0, 0, 0.55),
-            0 2px 6px -2px rgba(0, 0, 0, 0.4);
-        }
-        .login-glass-pro::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          pointer-events: none;
-          background:
-            radial-gradient(120% 80% at 0% 0%, rgba(14, 165, 233, 0.05), transparent 65%);
-          mix-blend-mode: soft-light;
-        }
-        .dark .login-glass-pro::after {
-          background:
-            radial-gradient(120% 80% at 0% 0%, rgba(14, 165, 233, 0.18), transparent 60%),
-            radial-gradient(120% 80% at 100% 100%, rgba(139, 92, 246, 0.16), transparent 60%);
-          mix-blend-mode: screen;
-        }
-        @keyframes login-orb-drift-a {
-          0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-          50%      { transform: translate3d(30px, -22px, 0) scale(1.08); }
-        }
-        @keyframes login-orb-drift-b {
-          0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-          50%      { transform: translate3d(-26px, 28px, 0) scale(0.94); }
-        }
-        @keyframes login-orb-drift-c {
-          0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-          50%      { transform: translate3d(20px, 32px, 0) scale(1.05); }
-        }
-        .login-orb-a { animation: login-orb-drift-a 12s ease-in-out infinite; }
-        .login-orb-b { animation: login-orb-drift-b 14s ease-in-out infinite; }
-        .login-orb-c { animation: login-orb-drift-c 10s ease-in-out infinite; }
-        @media (prefers-reduced-motion: reduce) {
-          .login-orb-a, .login-orb-b, .login-orb-c { animation: none; }
-        }
-      `}</style>
-
-      {/* ── Ambient mesh blobs (LEFT half only) ─────────────────────────
-          Restrained palette - single faint sky blob behind the marketing
-          column so the headline / stats sit on a near-white field.
-          Dark mode keeps the original richer blob set for depth. */}
-      <div className="absolute inset-y-0 start-0 end-1/2 z-0 pointer-events-none overflow-hidden hidden lg:block">
-        <div className="absolute top-[-12%] left-[-6%] w-[520px] h-[520px] rounded-full bg-sky-300/10 dark:bg-oe-blue/35 blur-[120px] animate-blob-slow-1 mix-blend-screen" />
-        <div className="absolute bottom-[-18%] right-[2%] w-[400px] h-[400px] rounded-full bg-cyan-200/10 dark:bg-violet-500/35 blur-[110px] animate-blob-slow-4 mix-blend-screen hidden dark:block" />
-      </div>
-
-      {/* Mobile-only ambient blobs (single column layout) */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden lg:hidden">
-        <div className="absolute top-[-12%] left-[-6%] w-[520px] h-[520px] rounded-full bg-sky-300/10 dark:bg-oe-blue/35 blur-[110px] animate-blob-slow-1 mix-blend-screen" />
-      </div>
-
-      {/* Theme + Language - top right (enlarged for /login so discoverable). */}
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-surface-secondary px-4 py-16 sm:px-6">
+      {/* Theme + Language - small, top right. */}
       <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
         <ThemeSwitch />
         <div className="relative" ref={langRef}>
         <button
+          type="button"
           onClick={() => setLangOpen(!langOpen)}
-          className="flex items-center gap-2 rounded-xl border border-border-light bg-surface-elevated/85 backdrop-blur-sm px-4 py-2 text-sm font-medium text-content-secondary hover:bg-surface-elevated hover:border-oe-blue/30 transition-colors shadow-sm"
+          aria-label={t('common.language', { defaultValue: 'Language' })}
+          className="flex h-9 items-center gap-2 rounded-xl border border-border-light bg-surface-elevated px-3 text-sm font-medium text-content-secondary hover:border-oe-blue/30 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oe-blue"
         >
-          <Globe size={16} className="text-content-tertiary" />
-          <CountryFlag code={currentLang.country} size={20} />
+          <Globe size={15} className="text-content-tertiary" />
+          <CountryFlag code={currentLang.country} size={18} />
           <span className="hidden sm:inline">{currentLang.name}</span>
           <ChevronDown size={14} className={`text-content-tertiary transition-transform ${langOpen ? 'rotate-180' : ''}`} />
         </button>
         {langOpen && (
-          <div className="absolute right-0 mt-2 w-64 max-h-80 overflow-y-auto rounded-xl border border-border-light bg-surface-elevated shadow-xl py-1 animate-stagger-in">
+          <div className="absolute right-0 mt-2 w-64 max-h-80 overflow-y-auto rounded-xl border border-border-light bg-surface-elevated shadow-xl py-1">
             {SUPPORTED_LANGUAGES.map((lang) => {
               const isActive = i18n.language === lang.code;
               const english = 'english' in lang ? (lang as { english?: string }).english : undefined;
               return (
                 <button
                   key={lang.code}
+                  type="button"
                   onClick={() => { i18n.changeLanguage(lang.code); setLangOpen(false); }}
                   className={`flex w-full items-center gap-2.5 px-3 py-2 text-sm transition-colors ${isActive ? 'bg-oe-blue/10 text-oe-blue font-medium' : 'text-content-primary hover:bg-surface-secondary'}`}
                 >
@@ -503,445 +427,183 @@ export function LoginPage() {
         </div>
       </div>
 
-      {/* ── Right column on lg+: marketing & benefits.
-          Order swap (lg:order-2) puts the form on the left so it's the
-          first thing the eye lands on - primary action priority. */}
-      <div className="hidden lg:flex relative z-10 lg:order-2 flex-col justify-center pl-14 xl:pl-20 pr-12 xl:pr-16 py-6 overflow-hidden">
-        {/* Marketing column showcase - color lives here. Sky/cyan mesh +
-            slow-drifting orbs + faint noise grain. The form column on the
-            left stays a clean white field; this column carries the visual
-            weight. */}
-        <div className="absolute inset-0 pointer-events-none -z-10 bg-sky-50/70 dark:bg-white/[0.03]" aria-hidden>
-        <div className="hidden">
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'radial-gradient(ellipse 90% 70% at 70% 25%, rgba(14,165,233,0.16), transparent 65%),' +
-                'radial-gradient(ellipse 80% 60% at 25% 85%, rgba(56,189,248,0.12), transparent 65%),' +
-                'radial-gradient(ellipse 60% 50% at 90% 75%, rgba(125,211,252,0.10), transparent 65%)',
-            }}
-          />
-          <div
-            className="absolute inset-0 hidden dark:block"
-            style={{
-              background:
-                'radial-gradient(ellipse 80% 60% at 70% 20%, rgba(14,165,233,0.22), transparent 60%),' +
-                'radial-gradient(ellipse 70% 60% at 30% 90%, rgba(139,92,246,0.18), transparent 60%)',
-            }}
-          />
-          <div className="absolute top-[8%] right-[8%] w-[420px] h-[420px] rounded-full bg-sky-300/45 dark:bg-sky-500/35 blur-[100px] login-orb-a" />
-          <div className="absolute bottom-[6%] left-[10%] w-[360px] h-[360px] rounded-full bg-cyan-200/40 dark:bg-violet-500/30 blur-[100px] login-orb-b" />
-          <div className="absolute top-[42%] right-[34%] w-[280px] h-[280px] rounded-full bg-white/55 dark:bg-white/0 blur-[80px] login-orb-c" />
-          <div
-            className="absolute inset-0 opacity-[0.04] dark:opacity-[0.07] mix-blend-overlay"
-            style={{
-              backgroundImage:
-                "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
-            }}
-          />
-        </div>
-        </div>
-
-        {/* DM Constructions marketing panel (replaces upstream marketing copy). */}
-        <h2 className="text-[32px] xl:text-[36px] font-semibold text-content-primary leading-[1.08] tracking-[-0.025em] animate-stagger-in" style={{ animationDelay: '60ms' }}>
-          DM Constructions
-        </h2>
-
-        <p className="mt-5 text-[17px] text-content-secondary/70 leading-[1.65] tracking-[-0.008em] max-w-[440px] animate-stagger-in" style={{ animationDelay: '120ms' }}>
-          Construction ERP with agentic workflows, customised for your projects.
-        </p>
-
-        <div className="mt-5 mb-5 h-px bg-gradient-to-r from-black/[0.06] via-black/[0.1] dark:from-white/10 dark:via-white/[0.14] to-transparent animate-stagger-in" style={{ animationDelay: '180ms' }} />
-
-        <div className="flex flex-col gap-4 max-w-[460px] animate-stagger-in" style={{ animationDelay: '240ms' }}>
-          {[
-            'Estimate, plan and control project costs in one place: BOQ, takeoff, scheduling and procurement.',
-            'Agentic workflows with approval steps, set up around how your teams work.',
-            'Integrations with Tally, WhatsApp and your CRM, delivered as part of your rollout.',
-          ].map((line) => (
-            <div key={line} className="relative pl-4">
-              <span aria-hidden className="absolute left-0 top-1.5 h-[14px] w-[2px] rounded-full bg-gradient-to-b from-oe-blue to-sky-500/60" />
-              <p className="text-[14px] leading-[1.6] text-content-secondary tracking-[-0.005em]">{line}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Footer */}
-        <div className="mt-8 animate-stagger-in" style={{ animationDelay: '320ms' }}>
-          <div className="flex items-center gap-2 text-[11px] text-content-tertiary">
-            <span>A Decision Minds solution</span>
-            <span className="opacity-30">&middot;</span>
-            <a href="https://github.com/decisionm/dm-constructions" target="_blank" rel="noopener noreferrer" className="hover:text-content-secondary underline-offset-2 hover:underline transition-colors">Licence &amp; source</a>
-          </div>
-        </div>
-      </div>
-
-      {/* Center column removed - tags moved to left panel footer */}
-
-      {/* ── Left column on lg+: logo + form (primary action). ── */}
-      <div className="relative flex items-center justify-center p-4 sm:p-6 z-10 lg:order-1 overflow-hidden">
-        {/* Form column backdrop - clean near-white field on lg+ so the
-            glass card reads against a calm canvas. The decorative show
-            (orbs / mesh) lives on the marketing column on the right. */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden hidden lg:block" aria-hidden>
-          {/* Dark mode: use #070912 (DARKER than #0f1117 surface-primary so
-              form inputs lift visibly off the column backdrop). Previously
-              #0b0d12 — too close to input bg, made inputs invisible. */}
-          <div className="absolute inset-0 bg-white dark:bg-[#070912]" />
-          <div className="absolute inset-0 bg-gradient-to-l from-white/0 via-white/60 to-white dark:from-[#070912]/0 dark:via-[#070912]/60 dark:to-[#070912]" />
-          {/* Tiny far-corner sky tint just to soften the edge - the glass
-              still has something to lift off, but the field reads white. */}
-          <div className="absolute -top-24 -left-24 w-[420px] h-[420px] rounded-full bg-sky-100/55 dark:bg-sky-500/10 blur-[110px]" />
-        </div>
-        <div className="w-full max-w-[380px] relative z-10">
-          {/* Logo - tenant white-label (logo / company name) when set via
-              the in-app sidebar editor; otherwise the default brand. The
-              small "by OpenConstructionERP" attribution stays visible in
-              customised modes (AGPL-3.0 requirement). */}
-          <div className="relative mb-5 flex flex-col items-center animate-stagger-in" style={{ animationDelay: '0ms' }}>
-            {/* Brand + edit-pencil row - grouped together and visually
-                centered in the form column (previously the pencil was
-                pinned to the far right edge which made the brand block
-                look off-centre relative to the form below). */}
-            <div className="flex items-center gap-2">
-              {brandCustomised ? (
-                <div className="flex flex-col items-center">
-                  {brandMode === 'logo' && brandLogo ? (
-                    <img
-                      src={brandLogo}
-                      alt={brandName || 'Custom logo'}
-                      className="block max-h-16 w-auto max-w-full object-contain"
-                      draggable={false}
-                    />
-                  ) : (
-                    <span
-                      className="block max-w-full truncate text-center text-3xl font-extrabold text-content-primary leading-none"
-                      style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", letterSpacing: '-0.02em' }}
-                      title={brandName}
-                    >
-                      {brandName}
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <div className="flex items-center gap-2.5">
-                  <span
-                    className="text-2xl font-semibold text-content-primary whitespace-nowrap"
-                    style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", letterSpacing: '-0.02em' }}
-                  >
-                    DM Constructions
-                  </span>
-                </div>
-              )}
-              {/* White-label trigger - same editor as the in-app sidebar
-                  brand control, available pre-auth so a tenant can put
-                  their own logo on the sign-in screen. */}
-              <button
-                type="button"
-                onClick={() => setBrandOpen(true)}
-                className="hidden h-7 w-7 items-center justify-center rounded-lg border border-border-light bg-surface-elevated/60 text-content-tertiary backdrop-blur-sm transition-colors hover:border-oe-blue/40 hover:bg-oe-blue/5 hover:text-oe-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oe-blue/40"
-                aria-label={t('login.brand_edit', { defaultValue: 'Customize logo' })}
-                title={t('login.brand_edit', { defaultValue: 'Customize logo' })}
-              >
-                <Pencil size={13} strokeWidth={2.25} />
-              </button>
-            </div>
-            <p className="mt-2 text-sm text-content-tertiary">
-              {t('login.workspace_tagline', { defaultValue: 'Professional construction project workspace' })}
-            </p>
+      {/* DM Constructions: one centred card. */}
+      <main className="w-full max-w-[460px]">
+        <div className="rounded-2xl border border-border-light bg-surface-elevated px-6 py-8 shadow-sm sm:px-10 sm:py-10">
+          {/* Logo on a white badge so a dark wordmark stays readable in dark mode. */}
+          <div className="flex justify-center">
+            {brandMode === 'logo' && brandLogo ? (
+              <span className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2.5 shadow-sm ring-1 ring-black/5">
+                <img
+                  src={brandLogo}
+                  alt={brandName || 'Decision Minds'}
+                  className="block h-10 w-auto max-w-[240px] object-contain"
+                  draggable={false}
+                />
+              </span>
+            ) : (
+              <span className="text-sm font-semibold uppercase tracking-wider text-content-secondary">
+                {brandMode === 'text' && brandName ? brandName : 'DM Constructions'}
+              </span>
+            )}
           </div>
 
-          {/* Open-source banner (mobile) - hidden in DM Constructions */}
-          <div className="hidden mb-4 animate-stagger-in" style={{ animationDelay: '100ms' }}>
-            <div className="rounded-xl bg-gradient-to-r from-oe-blue/10 via-violet-500/10 to-emerald-500/10 border border-oe-blue/20 px-4 py-3 text-center">
-              <div className="flex items-center justify-center gap-1.5 mb-1">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Decision Minds</span>
-              </div>
-              <p className="text-sm font-bold bg-gradient-to-r from-oe-blue via-violet-600 to-emerald-600 bg-clip-text text-transparent">
-                DM Constructions
-              </p>
-            </div>
-          </div>
+          <h1 className="mt-6 text-center text-3xl font-bold tracking-tight text-content-primary">
+            DM Constructions
+          </h1>
+          <p className="mt-2 text-center text-[15px] leading-relaxed text-content-secondary">
+            Construction ERP with agentic workflows, customised for your projects.
+          </p>
 
-          {/* DM Constructions: one-click demo entry is the primary action. */}
           {demoEnabled && (
-            <div className="mb-4">
+            <div className="mt-8">
               <button
                 type="button"
                 data-testid="dmc-enter-demo"
                 onClick={() => handleDemoLogin('demo@openconstructionerp.com')}
                 disabled={demoLoading !== null}
-                className="w-full rounded-xl bg-oe-blue px-5 py-3.5 text-base font-semibold text-white shadow-md transition-colors hover:bg-oe-blue-hover disabled:opacity-60"
+                className="w-full rounded-xl bg-oe-blue px-5 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-oe-blue-hover disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oe-blue focus-visible:ring-offset-2 focus-visible:ring-offset-surface-elevated"
               >
                 {demoLoading === 'demo@openconstructionerp.com' ? 'Opening demo...' : 'Enter demo'}
               </button>
-              <p className="mt-1.5 text-center text-xs text-content-tertiary">Muthukumar Panchabekasan · Administrator</p>
-              <p className="mt-5 text-center text-xs font-medium uppercase tracking-wider text-content-tertiary">Or sign in with your account</p>
-            </div>
-          )}
-
-          {/* Form - premium multi-layer glass.
-              login-glass-pro adds layered borders, a coloured ambient drop
-              shadow, an inset highlight, and a soft-light overlay tint via
-              ::after. The DOM-level top sheen below adds the rim-light line. */}
-          <div
-            className="login-glass-pro relative rounded-2xl px-6 py-5 animate-form-scale-in"
-            style={{ animationDelay: '150ms' }}
-          >
-            {/* Top-edge sheen - bright highlight along the rim */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-x-6 top-0 h-px rounded-t-2xl"
-              style={{
-                background:
-                  'linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent)',
-              }}
-            />
-            {/* Inner soft glow gradient on the top-left corner */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute top-0 left-0 w-32 h-32 rounded-tl-2xl opacity-60"
-              style={{
-                background:
-                  'radial-gradient(circle at 0% 0%, rgba(255,255,255,0.5), transparent 70%)',
-              }}
-            />
-            {/* Visually hidden h1 for screen readers + a11y tools - visible text uses h2 below */}
-            <h1 className="sr-only">{t('auth.login', 'Sign in')}</h1>
-            <div className="animate-stagger-in" style={{ animationDelay: '200ms' }}>
-              <h2 className="text-base font-semibold text-content-primary mb-0.5">{t('auth.login', 'Sign in')}</h2>
-              <p className="text-xs text-content-secondary mb-4">{t('auth.login_subtitle', 'Enter your credentials to access your workspace')}</p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-3" aria-label={t('auth.login', 'Sign in')}>
-              <div className="animate-stagger-in" style={{ animationDelay: '280ms' }}>
-                <Input id="login-email" name="email" label={t('auth.email', 'Email')} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" autoComplete="email" required aria-required="true" autoFocus icon={<Mail size={15} />} />
-              </div>
-
-              <div className="flex flex-col gap-1 animate-stagger-in" style={{ animationDelay: '340ms' }}>
-                <div className="flex items-center justify-between">
-                  <label htmlFor="login-password" className="text-sm font-medium text-content-primary">{t('auth.password', 'Password')}</label>
-                  <Link to="/forgot-password" className="text-2xs font-medium text-oe-blue hover:text-oe-blue-hover transition-colors">{t('auth.forgot_password', 'Forgot password?')}</Link>
-                </div>
-                <div className="relative">
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-content-tertiary"><Lock size={15} /></div>
-                  <input id="login-password" name="password" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('auth.password_placeholder', 'Enter your password')} autoComplete="current-password" required aria-required="true" minLength={8} className="h-9 w-full rounded-lg border border-border bg-surface-primary pl-9 pr-9 text-sm text-content-primary placeholder:text-content-tertiary transition-all duration-fast ease-oe focus:outline-none focus:ring-2 focus:ring-oe-blue focus:border-transparent hover:border-content-tertiary" />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? t('auth.hide_password', 'Hide password') : t('auth.show_password', 'Show password')} className="absolute inset-y-0 right-0 flex items-center pr-3 text-content-tertiary hover:text-content-secondary transition-colors" tabIndex={-1}>
-                    {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="animate-stagger-in" style={{ animationDelay: '380ms' }}>
-                <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="h-3.5 w-3.5 rounded border-border text-oe-blue focus:ring-oe-blue accent-oe-blue" />
-                  <span className="text-xs text-content-secondary">{t('auth.remember_me', 'Remember me for 30 days')}</span>
-                </label>
-              </div>
-
-              {error && (
-                <div
-                  data-testid="login-error"
-                  className="flex items-start gap-2 rounded-lg bg-semantic-error-bg px-3 py-2 text-xs text-semantic-error animate-stagger-in"
-                >
-                  <span className="shrink-0 mt-0.5">!</span><span>{error}</span>
-                </div>
-              )}
-
-              <div className="animate-stagger-in" style={{ animationDelay: '400ms' }}>
-                <Button type="submit" variant="primary" size="lg" loading={loading} className="w-full btn-shimmer">{t('auth.login', 'Sign in')}</Button>
-              </div>
-            </form>
-
-            {/* OIDC / SSO login - shown when the server has OIDC enabled */}
-            {oidcConfig?.enabled && (
-              <div className="mt-3 animate-stagger-in" style={{ animationDelay: '440ms' }}>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex-1 border-t border-border-light" />
-                  <span className="text-2xs text-content-tertiary">{t('auth.or', { defaultValue: 'or' })}</span>
-                  <div className="flex-1 border-t border-border-light" />
-                </div>
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  className="w-full"
-                  icon={<ShieldCheck size={16} />}
-                  onClick={() => {
-                    const params = new URLSearchParams({
-                      client_id: oidcConfig.client_id,
-                      response_type: 'code',
-                      scope: oidcConfig.scopes,
-                      redirect_uri: `${window.location.origin}/auth/oidc/callback`,
-                    });
-                    window.location.href = `${oidcConfig.issuer_url}/protocol/openid-connect/auth?${params}`;
-                  }}
-                >
-                  {t('auth.sso_login', { defaultValue: 'Sign in with SSO' })}
-                </Button>
-              </div>
-            )}
-
-            <div className="hidden" style={{ animationDelay: '460ms' }}>
-              <p className="text-center text-xs text-content-secondary">
-                {t('auth.no_account', "Don't have an account?")}{' '}
-                <Link to="/register" className="font-medium text-oe-blue hover:text-oe-blue-hover transition-colors">{t('auth.create_account', 'Create account')}</Link>
+              <p className="mt-2 text-center text-xs text-content-secondary">
+                Signs you in as Muthukumar Panchabekasan · Administrator
               </p>
             </div>
-          </div>
-
-          {/* Demo Access - shown by default. Hidden only when the server
-              reports demo is off (SEED_DEMO=false, or an admin turned it off in
-              Settings), which flips demoEnabled to false in the effect above. */}
-          {demoEnabled && (
-          <div className="relative mt-3 animate-stagger-in" style={{ animationDelay: '500ms' }}>
-            <div className="login-glass-pro relative rounded-2xl overflow-hidden">
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-x-6 top-0 h-px"
-                style={{
-                  background:
-                    'linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent)',
-                }}
-              />
-              <div className="relative flex w-full items-center">
-                <button
-                  type="button"
-                  onClick={() => setDemoOpen(!demoOpen)}
-                  aria-expanded={demoOpen}
-                  className="flex flex-1 items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-oe-blue hover:bg-oe-blue/[0.04] transition-all"
-                >
-                  <Zap size={14} className="text-oe-blue" />
-                  <span>Other demo roles</span>
-                  <ChevronDown size={14} className={`text-oe-blue/70 transition-transform duration-200 ${demoOpen ? 'rotate-180' : ''}`} />
-                </button>
-              </div>
-
-              {demoOpen && (
-                <div className="border-t border-border-light/60 px-3 py-2.5 space-y-1.5 animate-stagger-in">
-                  {demoAccounts.map((acct) => (
-                    <button
-                      key={acct.email}
-                      type="button"
-                      onClick={() => handleDemoLogin(acct.email)}
-                      disabled={demoLoading !== null}
-                      className="flex w-full items-center gap-3 rounded-xl border border-border-light/50 dark:border-white/10 bg-surface-secondary/50 dark:bg-white/[0.06] px-3.5 py-2.5 text-left transition-all hover:border-oe-blue/40 hover:bg-oe-blue/[0.05] dark:hover:bg-oe-blue/[0.14] hover:shadow-sm disabled:opacity-50 group"
-                    >
-                      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${acct.color} text-white text-sm font-bold shadow-sm`}>
-                        {demoLoading === acct.email ? (
-                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
-                        ) : (
-                          acct.letter
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[13px] font-semibold text-content-primary">{acct.name}</div>
-                        <div className="text-[11px] text-content-tertiary dark:text-content-secondary truncate">{acct.role}</div>
-                      </div>
-                      <ChevronDown size={15} className="text-content-quaternary -rotate-90 group-hover:text-oe-blue transition-colors shrink-0" />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            {/* Info affordance - kept OUTSIDE the overflow-hidden card above so
-                the hint popover is never clipped and always paints on top of the
-                demo accounts and the links below. Hover reveals it; click pins it
-                (touch / keyboard). Anchored to this relative wrapper at a fixed
-                top offset so it stays on the header row whether the demo list is
-                open or closed. */}
-            <div className="group absolute right-2 top-2 z-40">
-              <button
-                type="button"
-                aria-label={t('auth.demo_hint_aria', { defaultValue: 'About the demo sign-in block' })}
-                onClick={() => setDemoHint((v) => !v)}
-                className="flex h-6 w-6 items-center justify-center rounded-full text-oe-blue/50 hover:text-oe-blue hover:bg-oe-blue/[0.08] transition-colors"
-              >
-                <Info size={14} />
-              </button>
-              <div
-                role="tooltip"
-                className={`pointer-events-none absolute right-0 top-full mt-2 w-64 rounded-xl border border-border bg-surface-elevated backdrop-blur-md px-3.5 py-2.5 text-left text-xs leading-relaxed text-content-primary shadow-2xl transition-opacity duration-150 ${demoHint ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-              >
-                {t('auth.demo_hint', {
-                  defaultValue:
-                    'Optional demo sign-in. It only appears while demo accounts are enabled, so an administrator can turn it off.',
-                })}
-              </div>
-            </div>
-          </div>
           )}
 
-          {/* GitHub + Community - two primary entry points for the
-              open-source project (replaces the old single "Learn more"
-              link). Premium two-line cards with a tinted icon badge:
-              graphite for the source repo, oe-blue gradient for the
-              community hub. Mirrors the page's login-glass-pro language. */}
-          <div className="hidden" style={{ animationDelay: '520ms' }}>
-            <a
-              href="https://github.com/datadrivenconstruction/OpenConstructionERP"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${t('login.github', { defaultValue: 'GitHub' })} - ${t('login.github_sub', { defaultValue: 'Source code' })}`}
-              className="group relative flex items-center gap-3 overflow-hidden rounded-xl border border-border-light/70 dark:border-white/15 bg-white/75 dark:bg-white/[0.07] backdrop-blur-sm px-3.5 py-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/90 dark:hover:bg-white/[0.12] dark:hover:border-white/25 hover:border-content-primary/25 hover:shadow-lg"
+          {error && !formOpen && (
+            <div
+              data-testid="login-error"
+              className="mt-4 flex items-start gap-2 rounded-lg bg-semantic-error-bg px-3 py-2 text-xs text-semantic-error"
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-content-primary/[0.06] dark:bg-white/10 text-content-primary transition-colors group-hover:bg-content-primary/10 dark:group-hover:bg-white/15">
-                <Github size={17} strokeWidth={1.9} />
-              </span>
-              <span className="min-w-0 flex-1 leading-tight">
-                <span className="block text-[13px] font-semibold text-content-primary">
-                  {t('login.github', { defaultValue: 'GitHub' })}
-                </span>
-                <span className="block truncate text-[11px] text-content-tertiary dark:text-content-secondary">
-                  {t('login.github_sub', { defaultValue: 'Source code' })}
-                </span>
-              </span>
-              <ArrowUpRight
-                size={15}
-                className="shrink-0 text-content-quaternary dark:text-content-tertiary transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-content-secondary"
-              />
-            </a>
-            <a
-              href="https://t.me/datadrivenconstruction"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${t('login.community', { defaultValue: 'Community' })} - ${t('login.community_sub', { defaultValue: 'Get help & discuss' })}`}
-              className="group relative flex items-center gap-3 overflow-hidden rounded-xl border border-border-light/70 dark:border-white/15 bg-white/75 dark:bg-white/[0.07] backdrop-blur-sm px-3.5 py-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/90 dark:hover:bg-white/[0.12] dark:hover:border-white/25 hover:border-content-primary/25 hover:shadow-lg"
-            >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-content-primary/[0.06] dark:bg-white/10 text-content-primary transition-colors group-hover:bg-content-primary/10 dark:group-hover:bg-white/15">
-                <Users size={17} strokeWidth={1.9} />
-              </span>
-              <span className="min-w-0 flex-1 leading-tight">
-                <span className="block text-[13px] font-semibold text-content-primary">
-                  {t('login.community', { defaultValue: 'Community' })}
-                </span>
-                <span className="block truncate text-[11px] text-content-tertiary dark:text-content-secondary">
-                  {t('login.community_sub', { defaultValue: 'Get help & discuss' })}
-                </span>
-              </span>
-              <ArrowUpRight
-                size={15}
-                className="shrink-0 text-content-quaternary dark:text-content-tertiary transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-content-secondary"
-              />
-            </a>
-          </div>
-          <div className="mt-2 text-center text-2xs text-content-quaternary">
-            <div className="flex items-center justify-center gap-3">
-              <a href="https://github.com/decisionm/dm-constructions" target="_blank" rel="noopener noreferrer" className="hover:text-content-secondary transition-colors">A Decision Minds solution &middot; Licence &amp; source</a>
+              <span className="shrink-0 mt-0.5">!</span><span>{error}</span>
             </div>
-          </div>
-          {/* Running build version - always visible so it's obvious which
-              version is live on a fresh open. Matches the Sidebar / About
-              treatment (v{APP_VERSION}). */}
-          <div className="mt-3 text-center text-2xs font-mono text-content-quaternary/80 tabular-nums">
-            v{APP_VERSION}
+          )}
+
+          <div className="mt-6 border-t border-border-light pt-5">
+            <button
+              type="button"
+              data-testid="dmc-toggle-signin"
+              onClick={() => setFormOpen((v) => !v)}
+              aria-expanded={formOpen}
+              aria-controls="dmc-signin-panel"
+              className="mx-auto flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-medium text-oe-blue hover:text-oe-blue-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oe-blue"
+            >
+              Sign in with your account
+              <ChevronDown size={15} className={`transition-transform ${formOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {formOpen && (
+              <div id="dmc-signin-panel" className="mt-5">
+                <form onSubmit={handleSubmit} className="space-y-3" aria-label={t('auth.login', 'Sign in')}>
+                  <Input id="login-email" name="email" label={t('auth.email', 'Email')} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" autoComplete="email" required aria-required="true" autoFocus icon={<Mail size={15} />} />
+
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="login-password" className="text-sm font-medium text-content-primary">{t('auth.password', 'Password')}</label>
+                      <Link to="/forgot-password" className="text-xs font-medium text-oe-blue hover:text-oe-blue-hover transition-colors">{t('auth.forgot_password', 'Forgot password?')}</Link>
+                    </div>
+                    <div className="relative">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-content-tertiary"><Lock size={15} /></div>
+                      <input id="login-password" name="password" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('auth.password_placeholder', 'Enter your password')} autoComplete="current-password" required aria-required="true" minLength={8} className="h-9 w-full rounded-lg border border-border bg-surface-primary pl-9 pr-9 text-sm text-content-primary placeholder:text-content-tertiary transition-all duration-fast ease-oe focus:outline-none focus:ring-2 focus:ring-oe-blue focus:border-transparent hover:border-content-tertiary" />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? t('auth.hide_password', 'Hide password') : t('auth.show_password', 'Show password')} className="absolute inset-y-0 right-0 flex items-center pr-3 text-content-tertiary hover:text-content-secondary transition-colors" tabIndex={-1}>
+                        {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="h-3.5 w-3.5 rounded border-border text-oe-blue focus:ring-oe-blue accent-oe-blue" />
+                    <span className="text-xs text-content-secondary">{t('auth.remember_me', 'Remember me for 30 days')}</span>
+                  </label>
+
+                  {error && (
+                    <div
+                      data-testid="login-error"
+                      className="flex items-start gap-2 rounded-lg bg-semantic-error-bg px-3 py-2 text-xs text-semantic-error"
+                    >
+                      <span className="shrink-0 mt-0.5">!</span><span>{error}</span>
+                    </div>
+                  )}
+
+                  <Button type="submit" variant="primary" size="lg" loading={loading} className="w-full">{t('auth.login', 'Sign in')}</Button>
+                </form>
+
+                {/* OIDC / SSO login - shown when the server has OIDC enabled */}
+                {oidcConfig?.enabled && (
+                  <div className="mt-3">
+                    <Button
+                      variant="secondary"
+                      size="lg"
+                      className="w-full"
+                      icon={<ShieldCheck size={16} />}
+                      onClick={() => {
+                        const params = new URLSearchParams({
+                          client_id: oidcConfig.client_id,
+                          response_type: 'code',
+                          scope: oidcConfig.scopes,
+                          redirect_uri: `${window.location.origin}/auth/oidc/callback`,
+                        });
+                        window.location.href = `${oidcConfig.issuer_url}/protocol/openid-connect/auth?${params}`;
+                      }}
+                    >
+                      {t('auth.sso_login', { defaultValue: 'Sign in with SSO' })}
+                    </Button>
+                  </div>
+                )}
+
+                {/* Other demo roles */}
+                {demoEnabled && (
+                  <div className="mt-5">
+                    <p className="mb-2 text-xs font-medium text-content-secondary">Other demo roles</p>
+                    <div className="space-y-1.5">
+                      {demoAccounts.filter((a) => a.role !== 'Administrator').map((acct) => (
+                        <button
+                          key={acct.email}
+                          type="button"
+                          onClick={() => handleDemoLogin(acct.email)}
+                          disabled={demoLoading !== null}
+                          className="flex w-full items-center gap-3 rounded-xl border border-border-light bg-surface-secondary px-3.5 py-2.5 text-left transition-colors hover:border-oe-blue/40 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oe-blue"
+                        >
+                          <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${acct.color} text-white text-sm font-bold`}>
+                            {acct.letter}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-[13px] font-semibold text-content-primary">{demoLoading === acct.email ? 'Opening...' : acct.name}</span>
+                            <span className="block truncate text-[11px] text-content-secondary">{acct.role}</span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
-      </div>
+
+        <ul className="mx-auto mt-6 max-w-[420px] space-y-2 px-2 text-[13px] leading-relaxed text-content-secondary">
+          {[
+            'Estimate, plan and control project costs: BOQ, takeoff, scheduling and procurement.',
+            'Agentic workflows with approval steps, set up around how your teams work.',
+            'Integrations with Tally, WhatsApp and your CRM, delivered as part of your rollout.',
+          ].map((line) => (
+            <li key={line} className="flex gap-2.5">
+              <span aria-hidden className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-oe-blue/70" />
+              <span>{line}</span>
+            </li>
+          ))}
+        </ul>
+
+        <footer className="mt-8 text-center text-xs text-content-tertiary">
+          <p>
+            A Decision Minds solution <span aria-hidden>&middot;</span>{' '}
+            <a href="https://github.com/decisionm/dm-constructions" target="_blank" rel="noopener noreferrer" className="rounded underline-offset-2 hover:text-content-secondary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oe-blue">Licence &amp; source</a>
+          </p>
+          <p className="mt-1 font-mono tabular-nums">v{APP_VERSION}</p>
+        </footer>
+      </main>
 
       {/* ── White-label branding editor (pre-auth) ── */}
       {brandOpen && <BrandingEditorModal onClose={() => setBrandOpen(false)} />}
