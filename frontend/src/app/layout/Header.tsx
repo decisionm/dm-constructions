@@ -1487,7 +1487,16 @@ function UserMenu() {
   const userEmail = useAuthStore((s) => s.userEmail);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const userInitial = userEmail ? userEmail.charAt(0).toUpperCase() : 'U';
+  const userFullName = useAuthStore((s) => s.userFullName);
+  // DM Constructions: initials from the profile's full name ("MP"), falling
+  // back to the email's first letter when no name is known yet.
+  const nameParts = (userFullName ?? '').trim().split(/\s+/).filter(Boolean);
+  const userInitial =
+    nameParts.length > 0
+      ? (nameParts[0]!.charAt(0) + (nameParts.length > 1 ? nameParts[nameParts.length - 1]!.charAt(0) : '')).toUpperCase()
+      : userEmail
+        ? userEmail.charAt(0).toUpperCase()
+        : 'U';
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {

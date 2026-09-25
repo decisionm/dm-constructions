@@ -69,13 +69,14 @@ interface Preferences {
 }
 
 const DEFAULTS: Preferences = {
-  currency: 'EUR',
+  // DM Constructions: Indian defaults (INR, 18% GST, India region).
+  currency: 'INR',
   measurementSystem: 'metric',
   dateFormat: 'auto',
   numberLocale: 'auto',
-  vatRate: 19,
-  defaultRegion: 'DACH',
-  defaultCurrency: 'EUR',
+  vatRate: 18,
+  defaultRegion: 'India',
+  defaultCurrency: 'INR',
   defaultStandard: 'din276',
 };
 

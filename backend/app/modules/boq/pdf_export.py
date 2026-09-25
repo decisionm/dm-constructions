@@ -26,7 +26,7 @@ Security note (BUG-PDF01 / BUG-PDF02):
 
 import html
 import io
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any
 
@@ -499,6 +499,36 @@ def _tax_split(boq_data: Any) -> tuple[list[Any], Decimal, Decimal, Decimal]:
     return tax_lines, tax_amount, gross_total - tax_amount, gross_total
 
 
+# DM Constructions (India): a BOQ export for an Indian project is a GST
+# quotation. Intra-state supply (supplier and client in Tamil Nadu), so one
+# GST 18% line (works contract services, SAC 9954) prints as CGST 9% + SGST 9%.
+_IST = timezone(timedelta(hours=5, minutes=30))
+_IN_PLACE_OF_SUPPLY = "Tamil Nadu (33)"
+_IN_SAC = "9954 (Works contract services)"
+_IN_SUPPLIER = "DM Constructions \u2014 a Decision Minds solution"
+
+
+def _is_in_quotation(country_code: str) -> bool:
+    return (country_code or "").strip().upper() == "IN"
+
+
+def _tax_rows(tax_lines: list[Any], currency: str, country_code: str) -> list[tuple[str, Decimal]]:
+    """Tax rows for the summaries: one per tax line, or CGST/SGST halves for India."""
+    rows = [(f"{_tax_label(m, currency)}:", Decimal(str(m.amount))) for m in tax_lines]
+    if (
+        _is_in_quotation(country_code)
+        and len(tax_lines) == 1
+        and getattr(tax_lines[0], "markup_type", "") == "percentage"
+        and Decimal(str(tax_lines[0].percentage)) == Decimal("18")
+    ):
+        tax = Decimal(str(tax_lines[0].amount))
+        cgst = (tax / 2).quantize(Decimal("0.01"))
+        return [("CGST 9%:", cgst), ("SGST 9%:", tax - cgst)]
+    if not rows:
+        rows = [(_zero_tax_fallback_label(country_code), Decimal("0"))]
+    return rows
+
+
 def _build_styles() -> dict[str, ParagraphStyle]:
     """Build the set of paragraph styles used throughout the PDF."""
     base = getSampleStyleSheet()
@@ -817,12 +847,13 @@ def _build_cover_page(
     elements.append(line_wrapper)
     elements.append(Spacer(1, 4 * mm))
 
-    # Title
-    elements.append(Paragraph(lb["cost_estimate"], styles["title"]))
+    # Title (DM Constructions: an Indian project's export is a quotation)
+    in_quote = _is_in_quotation(country_code)
+    elements.append(Paragraph("QUOTATION" if in_quote else lb["cost_estimate"], styles["title"]))
 
     elements.append(Spacer(1, 2 * mm))
     elements.append(line_wrapper)
-    elements.append(Spacer(1, 12 * mm))
+    elements.append(Spacer(1, (7 if in_quote else 12) * mm))
 
     # Project info
     info_rows = [
@@ -831,6 +862,20 @@ def _build_cover_page(
         (lb["date"], datetime.now(tz=UTC).strftime("%d.%m.%Y")),
         (lb["status"], (boq_data.status or "Draft").capitalize()),
     ]
+    if in_quote:
+        now_ist = datetime.now(tz=_IST)
+        short_id = str(getattr(boq_data, "id", "") or "").replace("-", "")[:8].upper() or "BOQ"
+        client = project_name.split(" \u2014 ")[-1].strip() if " \u2014 " in project_name else ""
+        info_rows = [
+            ("Quotation No.:", f"QTN-{short_id}-{now_ist.strftime('%Y%m%d')}"),
+            ("Quotation date:", now_ist.strftime("%d-%m-%Y")),
+            ("Client:", client or "-"),
+            ("Client GSTIN:", "to be added"),
+            ("Place of supply:", _IN_PLACE_OF_SUPPLY),
+            ("SAC:", _IN_SAC),
+            (lb["project"], project_name),
+            (lb["boq"], boq_data.name),
+        ]
 
     info_table_data = []
     for label, value in info_rows:
@@ -846,20 +891,20 @@ def _build_cover_page(
 
     info_table = Table(
         info_table_data,
-        colWidths=[30 * mm, 100 * mm],
+        colWidths=[34 * mm, 100 * mm] if in_quote else [30 * mm, 100 * mm],
         hAlign="CENTER",
     )
     info_table.setStyle(
         TableStyle(
             [
                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 3 * mm),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), (1.5 if in_quote else 3) * mm),
                 ("TOPPADDING", (0, 0), (-1, -1), 1 * mm),
             ]
         )
     )
     elements.append(info_table)
-    elements.append(Spacer(1, 12 * mm))
+    elements.append(Spacer(1, (6 if in_quote else 12) * mm))
 
     # Separator
     sep_table = Table([[""]], colWidths=[130 * mm], rowHeights=[0.3 * mm])
@@ -891,15 +936,18 @@ def _build_cover_page(
 
     summary_rows: list[tuple[str, str, bool]] = [
         (lb["direct_cost"], _fmt_currency(direct_cost, currency), False),
-        ("Markups (excl. tax):", _fmt_currency(markup_total, currency), False),
-        (lb["net_total"], _fmt_currency(subtotal_ex_tax, currency), False),
+        *(
+            []
+            if in_quote and markup_total == 0
+            else [("Markups (excl. tax):", _fmt_currency(markup_total, currency), False)]
+        ),
+        ("Taxable value:" if in_quote else lb["net_total"], _fmt_currency(subtotal_ex_tax, currency), False),
     ]
     # One row per tax line, named and rated as the bill carries it. A stack with
     # no tax at all still prints a zero row, so the summary keeps its shape and
     # an untaxed bill is visibly untaxed rather than silently missing a row.
-    tax_rows = [(f"{_tax_label(m, currency)}:", Decimal(str(m.amount))) for m in tax_lines]
-    if not tax_rows:
-        tax_rows = [(_zero_tax_fallback_label(country_code), Decimal("0"))]
+    # India: GST 18% prints as CGST 9% + SGST 9% (see _tax_rows).
+    tax_rows = _tax_rows(tax_lines, currency, country_code)
     summary_rows.extend((label, _fmt_currency(amount, currency), False) for label, amount in tax_rows)
     summary_rows.append((f"{lb['gross_total']}:", _fmt_currency(gross_total, currency), True))
 
@@ -932,12 +980,34 @@ def _build_cover_page(
     summary_table.setStyle(TableStyle(summary_style_commands))
     elements.append(summary_table)
 
-    elements.append(Spacer(1, 10 * mm))
+    elements.append(Spacer(1, (6 if in_quote else 10) * mm))
     elements.append(sep_wrapper)
     elements.append(Spacer(1, 6 * mm))
 
+    # DM Constructions: quotation signature block - "Prepared by" on the left,
+    # "For <supplier> / Authorised signatory" on the right.
+    if in_quote:
+        left_style = ParagraphStyle("_boqPrep", parent=styles["subtitle"], alignment=TA_LEFT, fontSize=9, leading=12)
+        sign_style = ParagraphStyle("_boqSign", parent=styles["subtitle"], alignment=TA_RIGHT, fontSize=9, leading=12)
+        sign_table = Table(
+            [
+                [
+                    Paragraph(
+                        f"{lb['prepared_by']} " + html.escape(prepared_by or "-", quote=True),
+                        pdf_style_for_text(left_style, prepared_by or "-"),
+                    ),
+                    Paragraph(f"<b>For {html.escape(_IN_SUPPLIER)}</b>", sign_style),
+                ],
+                ["", ""],
+                ["", Paragraph("Authorised signatory", sign_style)],
+            ],
+            colWidths=[uw * 0.45, uw * 0.55],
+            rowHeights=[None, 12 * mm, None],
+        )
+        sign_table.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP")]))
+        elements.append(sign_table)
     # Prepared by
-    if prepared_by:
+    elif prepared_by:
         # ``prepared_by`` is user-supplied; escape it before splicing into
         # the cover-page paragraph or a payload like
         # ``<font color="white">x</font>`` would render as styled text and
@@ -1192,7 +1262,10 @@ def _build_boq_table(
         [
             "",
             "",
-            Paragraph(f"<b>{lb['net_total']}</b>", styles["cell_bold_right"]),
+            Paragraph(
+                f"<b>{'Taxable value:' if _is_in_quotation(country_code) else lb['net_total']}</b>",
+                styles["cell_bold_right"],
+            ),
             "",
             "",
             Paragraph(f"<b>{_fc(subtotal_ex_tax)}</b>", styles["cell_bold_right"]),
@@ -1201,9 +1274,7 @@ def _build_boq_table(
     row_styles.append((row_idx, "grand_total"))
     row_idx += 1
 
-    tax_rows = [(f"{_tax_label(m, currency)}:", Decimal(str(m.amount))) for m in tax_lines]
-    if not tax_rows:
-        tax_rows = [(_zero_tax_fallback_label(country_code), Decimal("0"))]
+    tax_rows = _tax_rows(tax_lines, currency, country_code)
     for tax_label, tax_line_amount in tax_rows:
         table_data.append(
             [
@@ -1658,14 +1729,15 @@ def generate_boq_pdf_simple(
     tax_lines, tax_amount, subtotal_ex_tax, gross_total = _tax_split(boq_data)
     cost_rows.append(
         [
-            Paragraph(f"<b>{lb['net_total']}</b>", styles["cell_bold_right"]),
+            Paragraph(
+                f"<b>{'Taxable value:' if _is_in_quotation(country_code) else lb['net_total']}</b>",
+                styles["cell_bold_right"],
+            ),
             Paragraph(f"<b>{_fmt_currency(subtotal_ex_tax, currency)}</b>", styles["cell_bold_right"]),
         ]
     )
 
-    tax_rows = [(f"{_tax_label(m, currency)}:", Decimal(str(m.amount))) for m in tax_lines]
-    if not tax_rows:
-        tax_rows = [(_zero_tax_fallback_label(country_code), Decimal("0"))]
+    tax_rows = _tax_rows(tax_lines, currency, country_code)
     for tax_label, tax_line_amount in tax_rows:
         cost_rows.append(
             [

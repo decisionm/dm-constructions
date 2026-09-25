@@ -24,6 +24,9 @@ export const SUPPORTED_LANGUAGES = [
   // two-part code, and the bundle has to be registered under the same spelling
   // it looks up.
   { code: 'en-GB', name: 'English (UK)', english: 'English (United Kingdom)', flag: '🇬🇧', country: 'gb' },
+  // DM Constructions: Indian English (British spelling via en-GB overrides,
+  // en-IN dates and lakh/crore number grouping from the locale tag).
+  { code: 'en-IN', name: 'English (India)', english: 'English (India)', flag: '🇮🇳', country: 'in' },
   { code: 'en-US', name: 'English (US)', english: 'English (United States)', flag: '🇺🇸', country: 'us' },
   { code: 'de', name: 'Deutsch', english: 'German', flag: '🇩🇪', country: 'de' },
   { code: 'fr', name: 'Français', english: 'French', flag: '🇫🇷', country: 'fr' },
@@ -397,11 +400,13 @@ export function resolveInitialLanguage(): string {
   //    Portugal's Portuguese and every Mexican one in Spain's Spanish, with
   //    the regional file sitting right there unused. "de-CH" still resolves
   //    to "de", because we ship no de-CH.
+  //    DM Constructions: an English (or unsupported) browser opens in
+  //    English (India), this deployment's market; other languages still win.
   const browserMatch = matchSupportedLanguage(navigator.language);
-  if (browserMatch) return browserMatch;
+  if (browserMatch && browserMatch.split('-')[0] !== 'en') return browserMatch;
 
-  // 4. Final fallback.
-  return 'en';
+  // 4. Final fallback: English (India) for this deployment.
+  return 'en-IN';
 }
 
 /**
