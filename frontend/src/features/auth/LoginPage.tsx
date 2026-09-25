@@ -300,8 +300,8 @@ export function LoginPage() {
   // random one per install, so any literal printed here would be wrong on every
   // install. The tiles sign in through /auth/demo-login/ instead.
   const demoAccounts = [
-    { email: 'demo@openconstructionerp.com', name: 'Admin', role: t('auth.demo_role_admin', 'Administrator'), color: 'bg-blue-500', letter: 'A' },
-    { email: 'manager@openconstructionerp.com', name: 'Michael Carter', role: t('auth.demo_role_manager', 'Manager'), color: 'bg-[#7cd0ff]', letter: 'M' },
+    { email: 'demo@openconstructionerp.com', name: 'Muthukumar Panchabekasan', role: 'Administrator', color: 'bg-blue-500', letter: 'M' },
+    { email: 'manager@openconstructionerp.com', name: 'Project manager', role: 'Manager', color: 'bg-[#7cd0ff]', letter: 'P' },
   ];
 
   const handleDemoLogin = async (demoEmail: string) => {
@@ -511,7 +511,8 @@ export function LoginPage() {
             slow-drifting orbs + faint noise grain. The form column on the
             left stays a clean white field; this column carries the visual
             weight. */}
-        <div className="absolute inset-0 pointer-events-none -z-10" aria-hidden>
+        <div className="absolute inset-0 pointer-events-none -z-10 bg-sky-50/70 dark:bg-white/[0.03]" aria-hidden>
+        <div className="hidden">
           <div
             className="absolute inset-0"
             style={{
@@ -540,175 +541,38 @@ export function LoginPage() {
             }}
           />
         </div>
-
-        {/* Eyebrow pill */}
-        <div className="mb-5 animate-stagger-in" style={{ animationDelay: '0ms' }}>
-          <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/[0.08] dark:bg-emerald-400/[0.1] px-3.5 py-1.5">
-            <span className="relative flex h-[6px] w-[6px]">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
-              <span className="relative inline-flex rounded-full h-[6px] w-[6px] bg-emerald-500" />
-            </span>
-            <span className="text-[11px] font-medium tracking-[0.04em] text-emerald-700 dark:text-emerald-300">Open Source</span>
-          </span>
         </div>
 
-        {/* Marketing headline - kept as h2 because the form panel below has the
-            authoritative h1 (visually hidden, always present in DOM). */}
+        {/* DM Constructions marketing panel (replaces upstream marketing copy). */}
         <h2 className="text-[32px] xl:text-[36px] font-semibold text-content-primary leading-[1.08] tracking-[-0.025em] animate-stagger-in" style={{ animationDelay: '60ms' }}>
-          {t('login.hero_h_a', { defaultValue: 'The' })}{' '}
-          <span className="bg-gradient-to-r from-oe-blue to-sky-500 bg-clip-text text-transparent">#1</span>{' '}
-          {t('login.hero_h_b', { defaultValue: 'open-source workspace for' })}
-          <br />
-          <span className="bg-gradient-to-r from-oe-blue to-sky-500 bg-clip-text text-transparent">
-            {t('login.hero_h_c', { defaultValue: 'construction project management' })}
-          </span>
+          DM Constructions
         </h2>
 
-        {/* Subhead */}
-        <p className="mt-5 text-[17px] text-content-secondary/70 leading-[1.65] tracking-[-0.008em] max-w-[420px] animate-stagger-in" style={{ animationDelay: '120ms' }}>
-          {t('login.hero_desc', { defaultValue: 'Plan, estimate, schedule, tender - every step of a project on one professional platform.' })}
+        <p className="mt-5 text-[17px] text-content-secondary/70 leading-[1.65] tracking-[-0.008em] max-w-[440px] animate-stagger-in" style={{ animationDelay: '120ms' }}>
+          Construction ERP with agentic workflows, customised for your projects.
         </p>
 
-        {/* Stats row */}
-        <div className="mt-5 flex items-center gap-5 animate-stagger-in" style={{ animationDelay: '180ms' }}>
+        <div className="mt-5 mb-5 h-px bg-gradient-to-r from-black/[0.06] via-black/[0.1] dark:from-white/10 dark:via-white/[0.14] to-transparent animate-stagger-in" style={{ animationDelay: '180ms' }} />
+
+        <div className="flex flex-col gap-4 max-w-[460px] animate-stagger-in" style={{ animationDelay: '240ms' }}>
           {[
-            { value: '120K+', label: t('login.stat_costs', { defaultValue: 'cost items' }) },
-            { value: String(SUPPORTED_LANGUAGES.length), label: t('login.stat_langs', { defaultValue: 'languages' }) },
-            { value: '47', label: t('login.stat_regions', { defaultValue: 'countries' }) },
-            { value: '6', label: t('login.stat_cad', { defaultValue: 'CAD formats' }) },
-            { value: '180+', label: t('login.stat_modules', { defaultValue: 'modules' }) },
-            { value: '28', label: t('login.stat_sections', { defaultValue: 'sections' }) },
-          ].map((s) => (
-            <div key={s.label} className="text-center">
-              <div className="text-[22px] font-semibold text-content-primary tracking-tight">{s.value}</div>
-              <div className="text-[11px] text-content-tertiary mt-0.5">{s.label}</div>
+            'Estimate, plan and control project costs in one place: BOQ, takeoff, scheduling and procurement.',
+            'Agentic workflows with approval steps, set up around how your teams work.',
+            'Integrations with Tally, WhatsApp and your CRM, delivered as part of your rollout.',
+          ].map((line) => (
+            <div key={line} className="relative pl-4">
+              <span aria-hidden className="absolute left-0 top-1.5 h-[14px] w-[2px] rounded-full bg-gradient-to-b from-oe-blue to-sky-500/60" />
+              <p className="text-[14px] leading-[1.6] text-content-secondary tracking-[-0.005em]">{line}</p>
             </div>
           ))}
         </div>
 
-        {/* Divider */}
-        <div className="mt-5 mb-4 h-px bg-gradient-to-r from-black/[0.06] via-black/[0.1] dark:from-white/10 dark:via-white/[0.14] to-transparent animate-stagger-in" style={{ animationDelay: '220ms' }} />
-
-        {/* Module honeycomb - proper pointy-top hex grid where every cell
-            shares an edge with its neighbours. Layout is intentionally
-            wider on the top/bottom rows (6 cells) than on the middle
-            row (5 cells) so it reads as a real, naturally-extending
-            honeycomb. Every cell is a real module - no decorative
-            placeholders. Math:
-              hex width   = 88px (left vertex to right vertex)
-              hex height  = 100px (top vertex to bottom vertex)
-              row stride  = 75px (3/4 of height - pointy-top step)
-              column step = 88px (one hex width on the same row)
-              alternating rows are offset by 44px (half a hex) - that's
-              what makes the slanted edges meet exactly. */}
-        <div className="relative mt-1 mr-auto h-[280px] w-[560px] max-w-full overflow-hidden animate-stagger-in" style={{ animationDelay: '260ms' }}>
-          {([
-            // Top row (y = -75) - 6 cells, offset by 44.
-            { x: -220, y: -76, icon: ShieldCheck,     label: t('login.mod.local',     { defaultValue: 'Local' }) },
-            { x: -132, y: -76, icon: Brain,           label: t('login.mod.ai',       { defaultValue: 'AI' }) },
-            { x:  -44, y: -76, icon: Ruler,           label: t('login.mod.takeoff',  { defaultValue: 'Takeoff' }) },
-            { x:   44, y: -76, icon: PenTool,         label: t('login.mod.cad',      { defaultValue: 'CAD' }) },
-            { x:  132, y: -76, icon: Box,             label: t('login.mod.bim',      { defaultValue: 'BIM' }) },
-            { x:  220, y: -76, icon: TrendingUp,      label: t('login.mod.cost5d',   { defaultValue: '5D' }) },
-            // Mid row (y = 0) - 5 cells aligned on the same axis.
-            { x: -176, y:  0,  icon: Database,        label: t('login.mod.costs',    { defaultValue: 'Costs' }) },
-            { x:  -88, y:  0,  icon: FileSpreadsheet, label: t('common.boq') },
-            { x:    0, y:  0,  icon: Layers,          label: t('login.mod.core',     { defaultValue: 'Workspace' }), accent: true },
-            { x:   88, y:  0,  icon: CalendarClock,   label: t('login.mod.schedule', { defaultValue: 'Schedule' }) },
-            { x:  176, y:  0,  icon: BarChart3,       label: t('login.mod.tender',   { defaultValue: 'Tendering' }) },
-            // Bottom row (y = 75) - 6 cells, offset by 44.
-            { x: -220, y:  76, icon: Zap,             label: t('login.mod.realtime', { defaultValue: 'Realtime' }) },
-            { x: -132, y:  76, icon: Boxes,           label: t('login.mod.resources',{ defaultValue: 'Resources' }) },
-            { x:  -44, y:  76, icon: ClipboardList,   label: t('login.mod.tasks',    { defaultValue: 'Tasks' }) },
-            { x:   44, y:  76, icon: FileCheck,       label: t('login.mod.validate', { defaultValue: 'Validate' }) },
-            { x:  132, y:  76, icon: FolderOpen,      label: t('login.mod.files',    { defaultValue: 'Files' }) },
-            { x:  220, y:  76, icon: Upload,          label: t('login.mod.exports',  { defaultValue: 'Exports' }) },
-          ] as const).map((cell, idx) => {
-            const isAccent = 'accent' in cell && cell.accent === true;
-            const Icon = cell.icon;
-            return (
-              // Outer wrapper handles ABSOLUTE POSITIONING only - its
-              // transform is the hex-grid offset and must never be
-              // overridden by an animation. Animations live on the inner
-              // cell so they don't fight with our positioning maths.
-              <div
-                key={idx}
-                className="absolute top-1/2 left-1/2"
-                style={{
-                  transform: `translate(calc(-50% + ${cell.x}px), calc(-50% + ${cell.y}px))`,
-                }}
-              >
-                <div
-                  className={`relative flex flex-col items-center justify-center w-[88px] animate-fade-in transition-transform duration-300 hover:scale-[1.05] ${
-                    isAccent ? 'text-white' : 'text-slate-900'
-                  }`}
-                  style={{
-                    animationDelay: `${280 + idx * 35}ms`,
-                    animationFillMode: 'both',
-                    // The height comes from the width, so the cell cannot
-                    // drift off the ratio the clip path is regular in.
-                    aspectRatio: HEX_PORTRAIT_ASPECT,
-                    clipPath: HEX_PORTRAIT_CLIP,
-                    background: isAccent
-                      ? 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 65%, #0369a1 100%)'
-                      : 'linear-gradient(180deg, rgba(255,255,255,0.97), rgba(244,250,255,0.82))',
-                    boxShadow: isAccent
-                      ? '0 18px 32px -12px rgba(14,165,233,0.55), inset 0 1px 0 rgba(255,255,255,0.35)'
-                      : '0 8px 18px -8px rgba(15,23,42,0.10), inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(14,165,233,0.06)',
-                  }}
-                >
-                  <Icon
-                    size={isAccent ? 22 : 18}
-                    strokeWidth={isAccent ? 2 : 1.65}
-                    className={isAccent ? '' : 'text-oe-blue'}
-                  />
-                  <span
-                    className={`mt-[5px] text-[10px] font-semibold tracking-[-0.01em] ${
-                      isAccent ? 'text-white/95' : 'text-slate-800'
-                    }`}
-                  >
-                    {cell.label}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Value props - restored as a clean two-up grid with refined
-            typography (no boxed icon backgrounds, accent rule above each
-            title) so the marketing column lands on something concrete
-            after the honeycomb. */}
-        <div className="mt-2 flex flex-wrap items-start gap-x-5 gap-y-2 animate-stagger-in" style={{ animationDelay: '320ms' }}>
-          {[
-            { icon: ShieldCheck, title: t('login.feat_local_title', { defaultValue: 'Your data, your machine' }), desc: t('login.feat_local', { defaultValue: 'Nothing leaves your computer. Full ownership,\nzero cloud dependency.' }) },
-            { icon: Brain,       title: t('login.feat_ai_title',    { defaultValue: 'AI-assisted, human-confirmed' }), desc: t('login.feat_ai',    { defaultValue: 'Smart suggestions with confidence scores. You always have the final say.' }) },
-          ].map((feat) => {
-            const Icon = feat.icon;
-            return (
-              <div key={feat.title} className="relative pl-4 max-w-[210px]">
-                <span aria-hidden className="absolute left-0 top-1 h-[14px] w-[2px] rounded-full bg-gradient-to-b from-oe-blue to-sky-500/60" />
-                <div className="flex items-center gap-1.5">
-                  <Icon size={13} strokeWidth={1.8} className="text-oe-blue/85" />
-                  <span className="text-[12.5px] font-semibold tracking-[-0.01em] text-content-primary leading-tight">
-                    {feat.title}
-                  </span>
-                </div>
-                <p className="mt-1 text-[11.5px] leading-[1.55] text-content-tertiary tracking-[-0.005em] whitespace-pre-line">
-                  {feat.desc}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-
         {/* Footer */}
-        <div className="mt-4 space-y-1 animate-stagger-in" style={{ animationDelay: '380ms' }}>
-          <div className="flex items-center gap-2 text-[11px] text-content-quaternary/60">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" className="opacity-40"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-            <a href="/api/source" target="_blank" rel="noopener noreferrer" className="hover:text-content-tertiary transition-colors">AGPL-3.0</a>
+        <div className="mt-8 animate-stagger-in" style={{ animationDelay: '320ms' }}>
+          <div className="flex items-center gap-2 text-[11px] text-content-tertiary">
+            <span>A Decision Minds solution</span>
             <span className="opacity-30">&middot;</span>
-            <a href="https://OpenConstructionERP.com" target="_blank" rel="noopener noreferrer" className="hover:text-content-tertiary transition-colors">OpenConstructionERP.com</a>
+            <a href="https://github.com/decisionm/dm-constructions" target="_blank" rel="noopener noreferrer" className="hover:text-content-secondary underline-offset-2 hover:underline transition-colors">Licence &amp; source</a>
           </div>
         </div>
       </div>
@@ -759,27 +623,14 @@ export function LoginPage() {
                       {brandName}
                     </span>
                   )}
-                  {/* "by OpenConstructionERP" - subordinate attribution that
-                      stays visible (AGPL-3.0). Mirrors CustomBranding.tsx. */}
-                  <span
-                    className="mt-2 block text-[11px] leading-none text-content-tertiary"
-                    style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", letterSpacing: '0.02em' }}
-                  >
-                    by{' '}
-                    <span className="font-semibold tracking-tight">
-                      Open<span className="text-oe-blue/80">Construction</span>
-                      <span className="text-content-quaternary">ERP</span>
-                    </span>
-                  </span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2.5">
-                  <Logo size="md" animate />
                   <span
-                    className="text-2xl font-medium text-content-primary whitespace-nowrap"
+                    className="text-2xl font-semibold text-content-primary whitespace-nowrap"
                     style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", letterSpacing: '-0.02em' }}
                   >
-                    Open<span className="text-oe-blue">Construction</span><span className="text-content-quaternary">ERP</span>
+                    DM Constructions
                   </span>
                 </div>
               )}
@@ -789,7 +640,7 @@ export function LoginPage() {
               <button
                 type="button"
                 onClick={() => setBrandOpen(true)}
-                className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-border-light bg-surface-elevated/60 text-content-tertiary backdrop-blur-sm transition-colors hover:border-oe-blue/40 hover:bg-oe-blue/5 hover:text-oe-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oe-blue/40"
+                className="hidden h-7 w-7 items-center justify-center rounded-lg border border-border-light bg-surface-elevated/60 text-content-tertiary backdrop-blur-sm transition-colors hover:border-oe-blue/40 hover:bg-oe-blue/5 hover:text-oe-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oe-blue/40"
                 aria-label={t('login.brand_edit', { defaultValue: 'Customize logo' })}
                 title={t('login.brand_edit', { defaultValue: 'Customize logo' })}
               >
@@ -801,21 +652,38 @@ export function LoginPage() {
             </p>
           </div>
 
-          {/* Open-source banner (mobile) */}
-          <div className="lg:hidden mb-4 animate-stagger-in" style={{ animationDelay: '100ms' }}>
+          {/* Open-source banner (mobile) - hidden in DM Constructions */}
+          <div className="hidden mb-4 animate-stagger-in" style={{ animationDelay: '100ms' }}>
             <div className="rounded-xl bg-gradient-to-r from-oe-blue/10 via-violet-500/10 to-emerald-500/10 border border-oe-blue/20 px-4 py-3 text-center">
               <div className="flex items-center justify-center gap-1.5 mb-1">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                 </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Open Source</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Decision Minds</span>
               </div>
               <p className="text-sm font-bold bg-gradient-to-r from-oe-blue via-violet-600 to-emerald-600 bg-clip-text text-transparent">
-                {t('login.open_source_badge', { defaultValue: 'The #1 Open-Source Construction ERP' })}
+                DM Constructions
               </p>
             </div>
           </div>
+
+          {/* DM Constructions: one-click demo entry is the primary action. */}
+          {demoEnabled && (
+            <div className="mb-4">
+              <button
+                type="button"
+                data-testid="dmc-enter-demo"
+                onClick={() => handleDemoLogin('demo@openconstructionerp.com')}
+                disabled={demoLoading !== null}
+                className="w-full rounded-xl bg-oe-blue px-5 py-3.5 text-base font-semibold text-white shadow-md transition-colors hover:bg-oe-blue-hover disabled:opacity-60"
+              >
+                {demoLoading === 'demo@openconstructionerp.com' ? 'Opening demo...' : 'Enter demo'}
+              </button>
+              <p className="mt-1.5 text-center text-xs text-content-tertiary">Muthukumar Panchabekasan · Administrator</p>
+              <p className="mt-5 text-center text-xs font-medium uppercase tracking-wider text-content-tertiary">Or sign in with your account</p>
+            </div>
+          )}
 
           {/* Form - premium multi-layer glass.
               login-glass-pro adds layered borders, a coloured ambient drop
@@ -918,7 +786,7 @@ export function LoginPage() {
               </div>
             )}
 
-            <div className="mt-4 border-t border-border-light pt-3.5 animate-stagger-in" style={{ animationDelay: '460ms' }}>
+            <div className="hidden" style={{ animationDelay: '460ms' }}>
               <p className="text-center text-xs text-content-secondary">
                 {t('auth.no_account', "Don't have an account?")}{' '}
                 <Link to="/register" className="font-medium text-oe-blue hover:text-oe-blue-hover transition-colors">{t('auth.create_account', 'Create account')}</Link>
@@ -948,7 +816,7 @@ export function LoginPage() {
                   className="flex flex-1 items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-oe-blue hover:bg-oe-blue/[0.04] transition-all"
                 >
                   <Zap size={14} className="text-oe-blue" />
-                  <span>{t('auth.try_demo', { defaultValue: 'Try demo (no signup)' })}</span>
+                  <span>Other demo roles</span>
                   <ChevronDown size={14} className={`text-oe-blue/70 transition-transform duration-200 ${demoOpen ? 'rotate-180' : ''}`} />
                 </button>
               </div>
@@ -972,7 +840,7 @@ export function LoginPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-[13px] font-semibold text-content-primary">{acct.name}</div>
-                        <div className="text-[11px] text-content-tertiary dark:text-content-secondary truncate">{acct.email} · {acct.role}</div>
+                        <div className="text-[11px] text-content-tertiary dark:text-content-secondary truncate">{acct.role}</div>
                       </div>
                       <ChevronDown size={15} className="text-content-quaternary -rotate-90 group-hover:text-oe-blue transition-colors shrink-0" />
                     </button>
@@ -1013,7 +881,7 @@ export function LoginPage() {
               link). Premium two-line cards with a tinted icon badge:
               graphite for the source repo, oe-blue gradient for the
               community hub. Mirrors the page's login-glass-pro language. */}
-          <div className="mt-4 grid grid-cols-2 gap-3 animate-stagger-in" style={{ animationDelay: '520ms' }}>
+          <div className="hidden" style={{ animationDelay: '520ms' }}>
             <a
               href="https://github.com/datadrivenconstruction/OpenConstructionERP"
               target="_blank"
@@ -1061,11 +929,9 @@ export function LoginPage() {
               />
             </a>
           </div>
-          <div className="lg:hidden mt-2 text-center text-2xs text-content-quaternary">
+          <div className="mt-2 text-center text-2xs text-content-quaternary">
             <div className="flex items-center justify-center gap-3">
-              <a href="https://OpenConstructionERP.com" target="_blank" rel="noopener noreferrer" className="hover:text-content-secondary transition-colors">OpenConstructionERP.com</a>
-              <span>·</span>
-              <a href="https://github.com/datadrivenconstruction/OpenConstructionERP" target="_blank" rel="noopener noreferrer" className="hover:text-content-secondary transition-colors">GitHub</a>
+              <a href="https://github.com/decisionm/dm-constructions" target="_blank" rel="noopener noreferrer" className="hover:text-content-secondary transition-colors">A Decision Minds solution &middot; Licence &amp; source</a>
             </div>
           </div>
           {/* Running build version - always visible so it's obvious which

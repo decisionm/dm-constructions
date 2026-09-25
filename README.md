@@ -1,3 +1,14 @@
+> **DM Constructions fork - modified version (AGPL-3.0-or-later, section 5 notice).**
+> This repository (`decisionm/dm-constructions`, branch `dm-constructions`) is a customised version of
+> [OpenConstructionERP](https://github.com/datadrivenconstruction/openconstructionerp) by Artem Boiko /
+> DataDrivenConstruction, forked at v18.0.0 (commit e7e18cd0) and **modified by Decision Minds on 2026-09-25**.
+> Modifications (web UI only): product name shown as "DM Constructions" (sidebar, login, browser title);
+> login marketing panel copy replaced; "by OpenConstructionERP" sidebar/login subtitle removed; upstream promo
+> buttons (Support us, Subscribe, article card, update prompt) hidden; GitHub/source links point to this fork;
+> About page states the licence, upstream origin and this source URL. Backend: only `/api/source` (AGPL section 13 source offer) changed to point to this fork.
+> Not affiliated with, endorsed by, or sponsored by DataDrivenConstruction. "OpenConstructionERP" is used only
+> nominatively to credit the upstream project. All original copyright and licence notices are retained.
+
 <div align="center">
 
 # OpenConstructionERP

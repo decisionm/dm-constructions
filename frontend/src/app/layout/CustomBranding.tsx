@@ -32,7 +32,7 @@ import clsx from 'clsx';
 import { Pencil, Upload, Trash2, X, Building2, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import { Logo } from '@/shared/ui';
+// (default brand is DM Constructions text; Logo import removed)
 import { useToastStore } from '@/stores/useToastStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import {
@@ -103,8 +103,7 @@ export function CustomBranding({ iconified }: CustomBrandingProps) {
       return (
         <button
           type="button"
-          onClick={() => setEditing(true)}
-          className="hover:opacity-80 transition-opacity"
+          className="cursor-default"
           title={companyName || t('branding.edit', { defaultValue: 'Customise branding' })}
           aria-label={t('branding.edit', { defaultValue: 'Customise branding' })}
         >
@@ -118,15 +117,12 @@ export function CustomBranding({ iconified }: CustomBrandingProps) {
       );
     }
     return (
-      <a
-        href="https://openconstructionerp.com/?utm_source=app"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hover:opacity-80 transition-opacity"
-        title="OpenConstructionERP"
+      <span
+        className="flex h-7 w-7 items-center justify-center rounded bg-oe-blue text-[11px] font-extrabold text-white"
+        title="DM Constructions"
       >
-        <Logo size="sm" />
-      </a>
+        DM
+      </span>
     );
   }
 
@@ -144,10 +140,8 @@ export function CustomBranding({ iconified }: CustomBrandingProps) {
             flex truncate long company names cleanly. */}
         <div className="flex-1 min-w-0">
           {customised ? (
-            <button
-              type="button"
-              onClick={() => setEditing(true)}
-              className="block w-full text-left rounded-lg p-1 -m-1 hover:bg-surface-secondary/40 transition-colors"
+            <div
+              className="block w-full text-left p-1 -m-1"
               aria-label={t('branding.edit', { defaultValue: 'Customise branding' })}
               title={t('branding.edit', { defaultValue: 'Customise branding' })}
             >
@@ -170,73 +164,21 @@ export function CustomBranding({ iconified }: CustomBrandingProps) {
                   {companyName}
                 </span>
               )}
-              {/* "by OpenConstructionERP" — minimal subordinate attribution
-                  under the user's brand. AGPL-3.0 attribution requirement
-                  is satisfied while the user's logo stays the dominant
-                  visual; font is small + muted on purpose. */}
-              <span
-                className="mt-1 block text-[8px] leading-none text-content-quaternary truncate"
-                style={{
-                  fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
-                  letterSpacing: '0.03em',
-                }}
-              >
-                by{' '}
-                <span className="font-semibold tracking-tight">
-                  Open<span className="text-oe-blue/60">Construction</span>
-                  <span className="text-content-quaternary">ERP</span>
-                </span>
-              </span>
-            </button>
+            </div>
           ) : (
-            <a
-              href="https://openconstructionerp.com/?utm_source=app"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 hover:opacity-80 transition-opacity"
-              title="OpenConstructionERP"
+            <span
+              className="block truncate text-[17px] font-extrabold text-content-primary leading-none"
+              style={{
+                fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+                letterSpacing: '-0.02em',
+              }}
+              title="DM Constructions"
             >
-              {/* Compact wordmark — 13px text + smaller gap to fit
-                  the 248px sidebar minus the 32px edit button without
-                  visual crowding. Standard LogoWithText size="xs" used
-                  15px and clipped against the pencil. */}
-              <Logo size="xs" />
-              <span
-                className="text-[13px] font-medium text-content-primary whitespace-nowrap leading-none"
-                style={{
-                  fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                Open<span className="text-oe-blue">Construction</span>
-                <span className="text-content-quaternary">ERP</span>
-              </span>
-            </a>
+              DM Constructions
+            </span>
           )}
         </div>
 
-        {/* RIGHT — always-visible edit button (36px square so it
-            doesn't crowd the wordmark). User asked for it to be
-            permanent (not hover-only) so discoverability of the
-            white-labelling feature is high. */}
-        <button
-          type="button"
-          onClick={() => setEditing(true)}
-          className={clsx(
-            'shrink-0 h-8 w-8 flex items-center justify-center rounded-lg',
-            'border border-border-light bg-surface-secondary/30',
-            'text-content-tertiary hover:text-oe-blue',
-            'hover:border-oe-blue/40 hover:bg-oe-blue/5',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oe-blue/40',
-            'transition-colors',
-          )}
-          aria-label={t('branding.edit', { defaultValue: 'Customise branding' })}
-          title={t('branding.edit_tooltip', {
-            defaultValue: 'Add your logo or company name',
-          })}
-        >
-          <Pencil size={13} strokeWidth={2.25} />
-        </button>
       </div>
 
       {editing && (

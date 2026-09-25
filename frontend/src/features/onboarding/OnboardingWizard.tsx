@@ -4493,7 +4493,7 @@ export function OnboardingWizard() {
   // and re-translated on a language switch in step 1.
   const brandName = useBrandingStore((s) => (s.companyName.trim() ? s.companyName.trim() : null));
   useEffect(() => {
-    document.title = `${t('onboarding.page_title', { defaultValue: 'Getting started' })} | ${brandName ?? 'OpenConstructionERP'}`;
+    document.title = `${t('onboarding.page_title', { defaultValue: 'Getting started' })} | ${brandName ?? 'DM Constructions'}`;
   }, [t, i18nInstance.language, brandName]);
   const [step, setStep] = useState(0);
   const [selectedLang, setSelectedLang] = useState(() => i18n.language?.split('-')[0] || 'en');

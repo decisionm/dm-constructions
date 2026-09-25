@@ -1654,7 +1654,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
             admin grid buttons above. */}
         {!iconified && (
           <div className="mt-3">
-            <UpdateNotification />
+            {null /* DM Constructions: upstream update prompt hidden */}
           </div>
         )}
 
@@ -1663,7 +1663,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
             Hidden in icon-only mode (the title + subtitle need width). */}
         {!iconified && (
           <div className="mt-2">
-            <ArticleNewsCard />
+            {null /* DM Constructions: upstream article promo hidden */}
           </div>
         )}
 
@@ -1678,7 +1678,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
           // users see only one toggle entry-point — no duplicate UI.
           <div className="pt-2 pb-1 flex flex-col items-center gap-1">
             <a
-              href="https://github.com/datadrivenconstruction/OpenConstructionERP"
+              href="https://github.com/decisionm/dm-constructions"
               target="_blank"
               rel="noopener noreferrer"
               title={`${t('sidebar.github_repo', { defaultValue: 'GitHub repository' })} (v${APP_VERSION})`}
@@ -1713,7 +1713,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
           <div className="pb-2 pt-1 flex flex-col gap-1.5">
             <div className="grid grid-cols-2 gap-1">
               <a
-                href="https://github.com/datadrivenconstruction/OpenConstructionERP"
+                href="https://github.com/decisionm/dm-constructions"
                 target="_blank"
                 rel="noopener noreferrer"
                 title={t('sidebar.github_repo', { defaultValue: 'GitHub repository' })}

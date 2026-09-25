@@ -181,11 +181,10 @@ export function RegisterPage() {
       <div className="hidden lg:flex lg:w-[460px] xl:w-[500px] shrink-0 relative z-10 flex-col justify-center ps-14 xl:ps-20 pe-8 xl:pe-10 py-6">
         <div className="mb-4 animate-stagger-in" style={{ animationDelay: '0ms' }}>
           <h2 className="text-xl font-bold text-content-primary leading-snug">
-            {t('login.hero_title', 'Construction cost estimation,')}{' '}
-            <span className="gradient-text">{t('login.hero_highlight', 'reimagined')}</span>
+            DM Constructions
           </h2>
           <p className="mt-1.5 text-[13px] text-content-secondary leading-relaxed">
-            {t('login.hero_desc', 'Professional BOQ, 4D scheduling, 5D cost model, and tendering - all in one open-source platform.')}
+            Estimating, BOQ, scheduling and cost control for construction projects. A Decision Minds solution.
           </p>
         </div>
 
@@ -249,7 +248,7 @@ export function RegisterPage() {
                 {t('auth.create_account', 'Create account')}
               </h2>
               <p className="text-xs text-content-secondary mb-4">
-                {t('auth.register_subtitle', 'Get started with OpenConstructionERP')}
+                Get started with DM Constructions
               </p>
             </div>
 

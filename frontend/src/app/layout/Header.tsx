@@ -527,8 +527,8 @@ export function Header({ title, onMenuClick }: HeaderProps) {
             sidebar. Renders nothing for anyone who may not install one.
             Hidden below xl to reduce crowding on narrower screens. */}
         <div className="hidden xl:block"><ModuleBuilderButton /></div>
-        <div className="hidden xl:block"><SupportUsButton /></div>
-        <SubscribeButton />
+        {/* DM Constructions: upstream Support-us button hidden */}
+        {/* DM Constructions: upstream Subscribe button hidden */}
         <BugReportMenu />
         <HelpMenu />
 
@@ -1091,7 +1091,7 @@ function HelpMenu() {
           </a>
           <a
             role="menuitem"
-            href="https://github.com/datadrivenconstruction/OpenConstructionERP"
+            href="https://github.com/decisionm/dm-constructions"
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setOpen(false)}
@@ -1246,7 +1246,7 @@ function LanguageSwitcher({
 /* ── User Menu ─────────────────────────────────────────────────────────── */
 
 /** GitHub repo slug for "Report a bug". Empty string = clipboard fallback. */
-const GITHUB_REPO = 'datadrivenconstruction/OpenConstructionERP';
+const GITHUB_REPO = 'decisionm/dm-constructions';
 /** Hard ceiling for the GitHub issue body inside a URL. ~8KB is safe across browsers. */
 const MAX_BODY_BYTES = 7800;
 

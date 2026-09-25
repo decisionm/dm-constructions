@@ -24,7 +24,7 @@ import { Changelog, getRecentReleases } from './Changelog';
 import { ThirdPartyLicenses } from './ThirdPartyLicenses';
 import { CONTRIBUTORS, SPONSORS, acknowledgedUrl, type Acknowledged } from './acknowledgments';
 
-const REPO_URL = 'https://github.com/datadrivenconstruction/OpenConstructionERP';
+const REPO_URL = 'https://github.com/decisionm/dm-constructions';
 // Clean product URL - "?source=search" is G2's search-result tracking.
 const G2_REVIEWS_URL = 'https://www.g2.com/products/openconstructionerp/reviews';
 const PAYPAL_DONATE_URL = 'https://www.paypal.com/donate/?hosted_button_id=DWBCLNLY2VWAA';
@@ -218,9 +218,13 @@ export function AboutPage() {
             </span>
             <span className="text-xs font-semibold uppercase tracking-widest text-emerald-600">Open Source</span>
           </div>
-          <h2 className="text-3xl font-bold text-content-primary tracking-tight">OpenConstructionERP</h2>
+          <h2 className="text-3xl font-bold text-content-primary tracking-tight">DM Constructions</h2>
           <p className="mt-2 text-base text-content-secondary">
-            {t('about.tagline', { defaultValue: 'The #1 open-source platform for construction cost estimation, project management and resource control' })}
+            Estimating, BOQ, scheduling and cost control for construction projects. A Decision Minds solution.
+          </p>
+          <p className="mt-3 text-sm text-content-secondary leading-relaxed" data-testid="dmc-legal-notice">
+            DM Constructions is a customised version of OpenConstructionERP by Artem Boiko / DataDrivenConstruction, licensed under AGPL-3.0-or-later. Not affiliated with, endorsed by, or sponsored by DataDrivenConstruction. Source code of this version:{' '}
+            <a href="https://github.com/decisionm/dm-constructions" target="_blank" rel="noopener noreferrer" className="text-oe-blue hover:underline">https://github.com/decisionm/dm-constructions</a>
           </p>
           <div className="mt-3 flex items-center justify-center lg:justify-start gap-3 text-sm text-content-tertiary">
             <span className="font-mono">v{APP_VERSION}</span>

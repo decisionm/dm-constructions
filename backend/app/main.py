@@ -3109,7 +3109,9 @@ def create_app() -> FastAPI:
         """
         return {
             "license": "AGPL-3.0",
-            "source_code": "https://github.com/datadrivenconstruction/OpenConstructionERP",
+            "source_code": "https://github.com/decisionm/dm-constructions",
+            "upstream": "https://github.com/datadrivenconstruction/OpenConstructionERP",
+            "modified_version": "DM Constructions - customised version of OpenConstructionERP (UI changes), branch dm-constructions. Not affiliated with, endorsed by, or sponsored by DataDrivenConstruction.",
             "copyright": "Copyright (c) 2026 Artem Boiko / DataDrivenConstruction",
             "notice": (
                 "This software is licensed under AGPL-3.0. "
