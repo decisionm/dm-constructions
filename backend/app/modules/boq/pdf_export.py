@@ -48,6 +48,7 @@ from reportlab.platypus import (
 )
 
 from app.core.pdf_branding import (
+    branded_appearance,
     branded_cover_brand,
     branded_doc_metadata,
     branded_header_logo,
@@ -947,6 +948,26 @@ def _build_cover_page(
                 f"{lb['prepared_by']} " + html.escape(prepared_by, quote=True),
                 # The estimator who signs a Chinese bill has a Chinese name.
                 pdf_style_for_text(styles["subtitle"], prepared_by),
+            )
+        )
+
+    # DM Constructions: print the workspace document footer line (Settings >
+    # Document templates) as the terms of the estimate, so a BOQ export can go
+    # to a client as a quotation. Empty footer line -> nothing printed.
+    terms = str(branded_appearance().get("footer_text") or "").strip()
+    if terms:
+        terms_style = ParagraphStyle(
+            "_boqTerms",
+            parent=styles["subtitle"],
+            fontSize=8,
+            leading=11,
+            textColor=colors.HexColor("#555555"),
+        )
+        elements.append(Spacer(1, 6 * mm))
+        elements.append(
+            Paragraph(
+                f"<b>{html.escape(lb.get('terms', 'Terms'), quote=True)}:</b> " + html.escape(terms, quote=True),
+                pdf_style_for_text(terms_style, terms),
             )
         )
 

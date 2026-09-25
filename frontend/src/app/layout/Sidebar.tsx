@@ -29,7 +29,6 @@ import {
   EyeOff,
   Pencil,
   Check,
-  Github,
   Loader2,
   LayoutGrid,
   type LucideIcon,
@@ -1677,28 +1676,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
           // toggle lives on the floating edge-pill, not down here, so
           // users see only one toggle entry-point — no duplicate UI.
           <div className="pt-2 pb-1 flex flex-col items-center gap-1">
-            <a
-              href="https://github.com/decisionm/dm-constructions"
-              target="_blank"
-              rel="noopener noreferrer"
-              title={`${t('sidebar.github_repo', { defaultValue: 'GitHub repository' })} (v${APP_VERSION})`}
-              aria-label={t('sidebar.github_repo', { defaultValue: 'GitHub repository' })}
-              className="flex h-8 w-8 items-center justify-center rounded-md border border-border-light bg-surface-primary hover:bg-surface-elevated transition-all"
-            >
-              <Github size={13} strokeWidth={1.75} className="text-content-secondary" />
-            </a>
-            <a
-              href="https://t.me/datadrivenconstruction"
-              target="_blank"
-              rel="noopener noreferrer"
-              title={t('sidebar.community_title', { defaultValue: 'Community' })}
-              aria-label={t('sidebar.telegram_community', { defaultValue: 'Telegram community' })}
-              className="flex h-8 w-8 items-center justify-center rounded-md border border-border-light bg-surface-primary hover:bg-surface-elevated transition-all"
-            >
-              <svg viewBox="0 0 24 24" fill="currentColor" className="h-[13px] w-[13px] text-content-secondary" aria-hidden>
-                <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71l-4.14-3.06-1.99 1.93c-.23.23-.42.42-.83.42z" />
-              </svg>
-            </a>
+            <a href="/api/source" target="_blank" rel="noopener noreferrer" title={`v${APP_VERSION} · AGPL-3.0`} className="text-[9px] text-content-tertiary">v{APP_VERSION}</a>
           </div>
         ) : (
           // GitHub / Community / version row.
@@ -1711,44 +1689,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
           // siblings of the admin grid in the layout coordinate space:
           // same outer `px-2`, same `gap-1` between the two cards.
           <div className="pb-2 pt-1 flex flex-col gap-1.5">
-            <div className="grid grid-cols-2 gap-1">
-              <a
-                href="https://github.com/decisionm/dm-constructions"
-                target="_blank"
-                rel="noopener noreferrer"
-                title={t('sidebar.github_repo', { defaultValue: 'GitHub repository' })}
-                aria-label={t('sidebar.github_repo', { defaultValue: 'GitHub repository' })}
-                className={clsx(
-                  'group flex h-8 w-full items-center justify-start gap-1.5 rounded-md border px-2 text-left transition-colors duration-fast ease-oe',
-                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-oe-blue/40',
-                  'border-border-light/60 bg-surface-primary text-content-secondary hover:bg-surface-secondary hover:text-content-primary hover:border-border-medium',
-                )}
-              >
-                <Github size={14} strokeWidth={1.75} aria-hidden className="shrink-0 text-content-secondary" />
-                <span className="min-w-0 flex-1 text-[11px] font-medium leading-none whitespace-nowrap overflow-hidden text-ellipsis text-content-secondary">
-                  GitHub
-                </span>
-              </a>
-              <a
-                href="https://t.me/datadrivenconstruction"
-                target="_blank"
-                rel="noopener noreferrer"
-                title={t('sidebar.join_telegram', { defaultValue: 'Join the Telegram community' })}
-                aria-label={t('sidebar.telegram_community', { defaultValue: 'Telegram community' })}
-                className={clsx(
-                  'group flex h-8 w-full items-center justify-start gap-1.5 rounded-md border px-2 text-left transition-colors duration-fast ease-oe',
-                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-oe-blue/40',
-                  'border-border-light/60 bg-surface-primary text-content-secondary hover:bg-surface-secondary hover:text-content-primary hover:border-border-medium',
-                )}
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor" className="h-[14px] w-[14px] shrink-0 text-content-secondary" aria-hidden>
-                  <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71l-4.14-3.06-1.99 1.93c-.23.23-.42.42-.83.42z" />
-                </svg>
-                <span className="min-w-0 flex-1 text-[11px] font-medium leading-none whitespace-nowrap overflow-hidden text-ellipsis text-content-secondary">
-                  {t('sidebar.community_title', { defaultValue: 'Community' })}
-                </span>
-              </a>
-            </div>
+            {/* DM Constructions: GitHub / Community buttons hidden (source link stays on About + AGPL link) */}
             <div className="flex items-center justify-center gap-1.5 min-w-0">
               <span className="text-2xs text-content-tertiary">v{APP_VERSION}</span>
               <span className="text-2xs text-content-quaternary/40">·</span>

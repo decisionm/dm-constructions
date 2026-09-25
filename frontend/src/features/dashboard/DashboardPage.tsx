@@ -36,7 +36,6 @@ import {
   FileText,
   Calendar,
   Upload,
-  ExternalLink,
   AlertTriangle,
   TrendingUp,
   Users,
@@ -2835,42 +2834,7 @@ function DashboardPageInner() {
 
       {/* ─── 2. Hero · row B - thin meta-strip ───────────────────────── */}
       <div className="flex items-center flex-wrap gap-x-4 gap-y-2 pl-2 animate-stagger-in" style={{ animationDelay: '140ms' }}>
-        {/* DDC attribution - slim inline link with tiny logo */}
-        <a
-          href="https://datadrivenconstruction.io/?utm_source=erp"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group/ddc inline-flex items-center gap-1.5 text-[11px] text-content-tertiary hover:text-content-secondary transition-colors"
-        >
-          <img
-            src="/brand/ddc-logo.webp"
-            alt="DataDrivenConstruction"
-            className="h-3.5 w-auto opacity-60 group-hover/ddc:opacity-100 transition-opacity"
-          />
-          <span className="hidden sm:inline">
-            {t('dashboard.developed_by_short', { defaultValue: 'by DataDrivenConstruction' })}
-          </span>
-        </a>
-
-        <span aria-hidden className="h-3 w-px bg-border-light" />
-
-        {/* Open-source pill - slimmer (was a heavy gradient card) */}
-        <a
-          href="https://github.com/datadrivenconstruction/OpenConstructionERP"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group/oss inline-flex items-center gap-2 text-xs font-medium text-content-secondary hover:text-content-primary transition-colors"
-        >
-          <span className="relative flex h-2 w-2 shrink-0">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-          </span>
-          <span>{t('dashboard.open_source_badge', { defaultValue: 'Open-source construction ERP' })}</span>
-          <ExternalLink size={11} className="text-content-quaternary group-hover/oss:text-oe-blue transition-colors" />
-        </a>
-
-        <span aria-hidden className="h-3 w-px bg-border-light" />
-
+        {/* DM Constructions: upstream attribution + OSS promo links removed from the dashboard (credit kept on About). */}
         {/* System status pills */}
         <SystemStatusSummary
           projects={projects}

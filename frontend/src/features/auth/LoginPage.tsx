@@ -384,7 +384,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center bg-surface-secondary px-4 py-16 sm:px-6">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-surface-secondary px-4 pt-24 pb-16 sm:px-6 sm:py-16">
       {/* Theme + Language - small, top right. */}
       <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
         <ThemeSwitch />
