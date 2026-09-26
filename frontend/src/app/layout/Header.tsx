@@ -11,8 +11,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useUploadQueueStore } from '@/stores/useUploadQueueStore';
 import { useProjectContextStore } from '@/stores/useProjectContextStore';
 import { useThemeStore } from '@/stores/useThemeStore';
-import { ActivePackChip, CountryFlag, ModuleInfoButton, PartnerLogoBadge } from '@/shared/ui';
-import { usePartnerPack } from '@/shared/hooks/usePartnerPack';
+import { CountryFlag, ModuleInfoButton } from '@/shared/ui';
 import { NotificationBell } from '@/shared/ui/NotificationBell';
 import { HeaderNewsButton } from '@/shared/ui/HeaderNewsButton';
 import { ModuleBuilderButton } from '@/features/module-builder';
@@ -343,8 +342,6 @@ export function Header({ title, onMenuClick }: HeaderProps) {
   // regression. The readout itself is `ActivePackChip` and is deliberately not
   // this component; see the note there on why a dismissible badge cannot be the
   // answer to "which pack am I on".
-  const packData = usePartnerPack().data;
-  const showCoBrand = packData?.active === true && packData.manifest?.type === 'partner';
   const location = useLocation();
   const translatedTitle = title
     ? t(resolvePageTitleKey(title) ?? title, { defaultValue: title })
@@ -449,10 +446,10 @@ export function Header({ title, onMenuClick }: HeaderProps) {
           the zones, and the chip's own name truncation keeps it from
           overflowing. Below lg the co-brand still shows in the dashboard
           banner. */}
-      <div className="hidden lg:flex flex-1 min-w-0 items-center justify-center gap-2 px-2">
-        <ActivePackChip />
-        {showCoBrand && <PartnerLogoBadge variant="nav" />}
-      </div>
+      {/* DM Constructions: the regional-pack chip is not shown here. It
+          overlapped the page title at 1280-1440 px, and the language flag in
+          the account zone already shows India. The column stays as spacer. */}
+      <div className="hidden lg:flex flex-1 min-w-0" aria-hidden="true" />
 
       {/* Right side — three zones separated by hairline dividers.
           Zone 2: Search · Zone 3: Notifications + Help · Zone 4: Account

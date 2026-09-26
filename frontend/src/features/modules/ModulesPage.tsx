@@ -1360,10 +1360,9 @@ function PartnerPackCard({
     setApplyOpen(true);
   }
 
-  const supportEmail =
-    typeof pack.metadata.support_email === 'string'
-      ? pack.metadata.support_email
-      : null;
+  // DM Constructions: the packs' support address is the upstream project's
+  // mailbox, not this deployment's, so it is not shown.
+  const supportEmail: string | null = null;
   const regulatorRefs = asStringArray(pack.metadata.regulator_refs);
 
   // Prefer human-readable regulator refs; fall back to raw rule-pack slugs.
@@ -1376,10 +1375,10 @@ function PartnerPackCard({
 
   const packType = packTypeOf(pack);
   // Co-branding line stays a property of the ``partner`` type only.
-  const poweredBy =
-    packType === 'partner' && pack.branding.powered_by_text
-      ? pack.branding.powered_by_text
-      : null;
+  // DM Constructions: no upstream "Powered by ... / In partnership with ..."
+  // co-branding line on the pack cards.
+  void packType;
+  const poweredBy: string | null = null;
 
   return (
     <Card

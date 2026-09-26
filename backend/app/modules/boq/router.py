@@ -4825,6 +4825,7 @@ async def export_boq_pdf(
                 country_code=_country,
                 locale=_locale,
                 page_format=_page_format,
+                project_meta=dict(project.metadata_ or {}),
             )
         else:
             import asyncio
@@ -4843,6 +4844,7 @@ async def export_boq_pdf(
                 country_code=_country,
                 locale=_locale,
                 page_format=_page_format,
+                project_meta=dict(project.metadata_ or {}),
             )
     except Exception:
         _log.exception("PDF generation failed for BOQ %s", boq_id)

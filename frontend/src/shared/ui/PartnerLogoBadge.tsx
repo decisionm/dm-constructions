@@ -81,7 +81,6 @@ export function PartnerLogoBadge({ variant, className = '' }: PartnerLogoBadgePr
         <Link
           to={PACKS_ROUTE}
           className="inline-flex items-center gap-1.5 hover:text-content-primary"
-          title={m.branding.powered_by_text}
         >
           <PackEmblem pack={m} size={20} />
           <span className="max-w-[10rem] truncate font-medium">{m.partner_name}</span>
@@ -108,14 +107,12 @@ export function PartnerLogoBadge({ variant, className = '' }: PartnerLogoBadgePr
       <Link
         to={PACKS_ROUTE}
         className="flex min-w-0 items-center gap-3 hover:opacity-90"
-        title={m.branding.powered_by_text}
       >
         <PackEmblem pack={m} size={44} />
         <div className="min-w-0 leading-tight">
           <div className="text-sm font-semibold text-content-primary">{m.partner_name}</div>
-          <div className="mt-0.5 text-2xs uppercase tracking-wide text-content-tertiary">
-            {m.branding.powered_by_text}
-          </div>
+          {/* DM Constructions: no "Powered by OpenConstructionERP · In
+              partnership with ..." line under the pack name. */}
           {m.description && (
             <div className="mt-0.5 max-w-2xl truncate text-xs text-content-secondary">
               {m.description}

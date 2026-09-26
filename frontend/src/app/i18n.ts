@@ -363,6 +363,9 @@ export function applyModuleTranslations(
  * SSR-safe: every ``window`` / ``localStorage`` / ``navigator`` access is
  * guarded so the function returns ``'en'`` when called outside a browser.
  */
+/** localStorage flag: the one-time en / en-US -> en-IN move has run. */
+const EN_IN_MIGRATION_KEY = 'dmc-lang-en-in-migrated';
+
 export function resolveInitialLanguage(): string {
   const supported = SUPPORTED_LANGUAGES.map((l) => l.code);
   const isValid = (code: string | null | undefined): code is string =>
@@ -383,6 +386,20 @@ export function resolveInitialLanguage(): string {
     }
   } catch {
     // URL parsing failure — fall through to next source.
+  }
+
+  // DM Constructions: one-time move of a saved "en" / "en-US" choice (made
+  // before this deployment defaulted to English (India)) to "en-IN". The flag
+  // is set on the first run whatever was stored, so a user who later picks
+  // English (US) on purpose keeps it.
+  try {
+    if (window.localStorage.getItem(EN_IN_MIGRATION_KEY) !== '1') {
+      const prev = window.localStorage.getItem('i18nextLng');
+      if (prev === 'en' || prev === 'en-US') window.localStorage.setItem('i18nextLng', 'en-IN');
+      window.localStorage.setItem(EN_IN_MIGRATION_KEY, '1');
+    }
+  } catch {
+    // localStorage unavailable — nothing to migrate.
   }
 
   // 2. Stored preference from a previous session.

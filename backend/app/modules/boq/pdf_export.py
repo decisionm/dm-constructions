@@ -24,8 +24,10 @@ Security note (BUG-PDF01 / BUG-PDF02):
     (``<b>Pos.</b>``) bypass it and continue to use ``Paragraph`` directly.
 """
 
+import contextvars
 import html
 import io
+import re
 from datetime import UTC, datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any
@@ -504,6 +506,44 @@ def _tax_split(boq_data: Any) -> tuple[list[Any], Decimal, Decimal, Decimal]:
 # GST 18% line (works contract services, SAC 9954) prints as CGST 9% + SGST 9%.
 _IST = timezone(timedelta(hours=5, minutes=30))
 _IN_PLACE_OF_SUPPLY = "Tamil Nadu (33)"
+# Release 4: the supplier's GST state for this deployment. A project whose
+# place of supply (project metadata ``place_of_supply``, e.g. "Karnataka (29)")
+# names another state is an inter-state supply and prints one IGST 18% line.
+_IN_SUPPLIER_STATE = "Tamil Nadu (33)"
+# The exporting project's metadata (client, place_of_supply), set by
+# generate_boq_pdf / generate_boq_pdf_simple for the length of one export.
+_PROJECT_META: contextvars.ContextVar[dict[str, Any]] = contextvars.ContextVar(
+    "dmc_pdf_project_meta", default={}
+)
+
+
+def _meta_str(key: str) -> str:
+    value = (_PROJECT_META.get() or {}).get(key)
+    return str(value).strip() if isinstance(value, (str, int, float)) else ""
+
+
+def _state_key(state: str) -> str:
+    """GST state code ("33") when the text carries one, else the lower-cased name."""
+    m = re.search(r"\((\d{2})\)", state or "")
+    if m:
+        return m.group(1)
+    return (state or "").strip().lower()
+
+
+def _place_of_supply() -> str:
+    return _meta_str("place_of_supply") or _IN_PLACE_OF_SUPPLY
+
+
+def _is_inter_state() -> bool:
+    return _state_key(_place_of_supply()) != _state_key(_IN_SUPPLIER_STATE)
+
+
+def _quotation_client(project_name: str) -> str:
+    """The project's ``client`` field; else the text after " \u2014 " in its name."""
+    client = _meta_str("client")
+    if client:
+        return client
+    return project_name.split(" \u2014 ")[-1].strip() if " \u2014 " in project_name else ""
 _IN_SAC = "9954 (Works contract services)"
 _IN_SUPPLIER = "DM Constructions \u2014 a Decision Minds solution"
 
@@ -522,6 +562,8 @@ def _tax_rows(tax_lines: list[Any], currency: str, country_code: str) -> list[tu
         and Decimal(str(tax_lines[0].percentage)) == Decimal("18")
     ):
         tax = Decimal(str(tax_lines[0].amount))
+        if _is_inter_state():
+            return [("IGST 18%:", tax)]
         cgst = (tax / 2).quantize(Decimal("0.01"))
         return [("CGST 9%:", cgst), ("SGST 9%:", tax - cgst)]
     if not rows:
@@ -865,13 +907,13 @@ def _build_cover_page(
     if in_quote:
         now_ist = datetime.now(tz=_IST)
         short_id = str(getattr(boq_data, "id", "") or "").replace("-", "")[:8].upper() or "BOQ"
-        client = project_name.split(" \u2014 ")[-1].strip() if " \u2014 " in project_name else ""
+        client = _quotation_client(project_name)
         info_rows = [
             ("Quotation No.:", f"QTN-{short_id}-{now_ist.strftime('%Y%m%d')}"),
             ("Quotation date:", now_ist.strftime("%d-%m-%Y")),
             ("Client:", client or "-"),
             ("Client GSTIN:", "to be added"),
-            ("Place of supply:", _IN_PLACE_OF_SUPPLY),
+            ("Place of supply:", _place_of_supply()),
             ("SAC:", _IN_SAC),
             (lb["project"], project_name),
             (lb["boq"], boq_data.name),
@@ -1346,7 +1388,17 @@ def _build_boq_table(
     return elements
 
 
-def generate_boq_pdf(
+def generate_boq_pdf(*args: Any, project_meta: dict[str, Any] | None = None, **kwargs: Any) -> bytes:
+    """DM Constructions: :func:`_generate_boq_pdf_impl` with the project's metadata
+    (``client``, ``place_of_supply``) in scope for the GST quotation."""
+    token = _PROJECT_META.set(dict(project_meta or {}))
+    try:
+        return _generate_boq_pdf_impl(*args, **kwargs)
+    finally:
+        _PROJECT_META.reset(token)
+
+
+def _generate_boq_pdf_impl(
     boq_data: Any,
     project_name: str,
     currency: str = "",
@@ -1538,7 +1590,17 @@ def count_boq_positions(boq_data: Any) -> int:
 LARGE_BOQ_THRESHOLD = 500
 
 
-def generate_boq_pdf_simple(
+def generate_boq_pdf_simple(*args: Any, project_meta: dict[str, Any] | None = None, **kwargs: Any) -> bytes:
+    """DM Constructions: :func:`_generate_boq_pdf_simple_impl` with the project's metadata
+    (``client``, ``place_of_supply``) in scope for the GST quotation."""
+    token = _PROJECT_META.set(dict(project_meta or {}))
+    try:
+        return _generate_boq_pdf_simple_impl(*args, **kwargs)
+    finally:
+        _PROJECT_META.reset(token)
+
+
+def _generate_boq_pdf_simple_impl(
     boq_data: Any,
     project_name: str,
     currency: str = "",

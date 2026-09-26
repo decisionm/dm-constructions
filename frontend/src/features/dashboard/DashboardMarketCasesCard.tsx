@@ -139,7 +139,16 @@ export function DashboardMarketCasesCard() {
     () => resolveHomeMarket({ language: i18n.language, packCountry, markets }),
     [i18n.language, packCountry, markets],
   );
-  const shelf = useMemo(() => orderMarkets(counts, resolution.market), [counts, resolution.market]);
+  // DM Constructions: with a regional pack on, the shelf shows that pack's
+  // market only (no United States / Brazil / ... chips on an India workspace).
+  const shelf = useMemo(() => {
+    const all = orderMarkets(counts, resolution.market);
+    if (resolution.source === 'pack' && resolution.market) {
+      const own = all.filter((m) => m.market === resolution.market);
+      if (own.length > 0) return own;
+    }
+    return all;
+  }, [counts, resolution.market, resolution.source]);
 
   // The chip the reader pressed, remembered together with the home market it
   // was pressed against. A language or pack change moves the home market and

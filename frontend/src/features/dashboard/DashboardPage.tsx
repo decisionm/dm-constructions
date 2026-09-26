@@ -51,6 +51,7 @@ import { Card, CardHeader, CardContent, Button, Badge, Skeleton, ActivityFeed as
 import { dashboardGuide } from './dashboardGuide';
 import { pricedPositions, type PositionCounts } from './pricedPositions';
 import { MultiCurrencyTotal } from '@/shared/ui/MultiCurrencyTotal';
+import { usePartnerPack } from '@/shared/hooks/usePartnerPack';
 import { WhatsNewCard } from '@/shared/ui/WhatsNewCard';
 import { DashboardCasesCard } from './DashboardCasesCard';
 import { CompactProjectCard } from './components/CompactProjectCard';
@@ -1122,14 +1123,51 @@ function PortfolioOverview() {
   // the same size share a cache entry, so deleting one project and creating
   // another served the stale figures. A constant key drops that, and the
   // 60 s staleTime is what keeps the panel fresh.
-  const { data: analytics } = useQuery({
+  // eslint-disable-next-line prefer-const
+  let { data: analytics } = useQuery({
     queryKey: ['portfolio-analytics'],
     queryFn: () => apiGet<AnalyticsOverview>('/v1/projects/analytics/overview/'),
     retry: false,
     staleTime: 60_000,
   });
 
+  // DM Constructions: on a regional-pack workspace the panel covers the live
+  // (non-archived) projects in the pack's currency only, so archived upstream
+  // demo projects no longer add AED / R$ / CA$ / $ budgets or over-budget rows.
+  const { data: packInfo } = usePartnerPack();
+  const packCurrency =
+    packInfo?.active && packInfo.manifest?.default_currency ? packInfo.manifest.default_currency : null;
+  const { data: liveProjects } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => fetchProjectList<ProjectSummary[]>(),
+    retry: false,
+    staleTime: 5 * 60_000,
+    enabled: packCurrency !== null,
+  });
+
   if (!analytics) return null;
+  if (packCurrency !== null && !liveProjects) return null;
+
+  const scopeIds =
+    packCurrency !== null && liveProjects
+      ? new Set(liveProjects.filter((p) => p.currency === packCurrency).map((p) => p.id))
+      : null;
+  if (scopeIds) {
+    const inScope = (analytics.projects || []).filter((p) => scopeIds.has(p.id));
+    const planned = inScope.reduce((sum, p) => sum + (Number(p.budget) || 0), 0);
+    const actual = inScope.reduce((sum, p) => sum + (Number(p.actual) || 0), 0);
+    const ownRow = (analytics.totals_by_currency ?? []).find((r) => r.currency === packCurrency);
+    analytics = {
+      ...analytics,
+      total_projects: scopeIds.size,
+      projects_with_budget: inScope.filter((p) => Number(p.budget) > 0).length,
+      totals_by_currency:
+        inScope.length > 0 || !ownRow
+          ? [{ currency: packCurrency, total_planned: planned, total_actual: actual, total_variance: planned - actual }]
+          : [ownRow],
+      projects: inScope,
+    };
+  }
 
   // A-DASH-01: the flat total_planned scalar blends per-project
   // currencies. Render the Total Budget card honestly: when more than
