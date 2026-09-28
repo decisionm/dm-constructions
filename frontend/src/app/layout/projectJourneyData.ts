@@ -26,6 +26,12 @@
  */
 
 import {
+  ClipboardList,
+  FilePenLine,
+  PackageCheck,
+  BookOpenCheck,
+  IndianRupee,
+  Percent,
   Target,
   Building2,
   ScanLine,
@@ -74,7 +80,7 @@ export interface JourneyArc {
   desc: string;
 }
 
-export const JOURNEY_ARCS: readonly JourneyArc[] = [
+export const UPSTREAM_JOURNEY_ARCS: readonly JourneyArc[] = [
   {
     key: 'plan',
     nameKey: 'journey.arc.plan',
@@ -98,7 +104,7 @@ export const JOURNEY_ARCS: readonly JourneyArc[] = [
   },
 ] as const;
 
-export const JOURNEY_PHASES: readonly JourneyPhase[] = [
+export const UPSTREAM_JOURNEY_PHASES: readonly JourneyPhase[] = [
   {
     key: 'win',
     arc: 'plan',
@@ -316,6 +322,196 @@ export const JOURNEY_PHASES: readonly JourneyPhase[] = [
     extraRoutes: ['/accommodation'],
   },
 ] as const;
+
+/*
+ * DM Constructions (release 5): the Indian contractor's workflow.
+ *
+ * This deployment is an India-only workspace (India regional pack, INR, GST),
+ * so the journey follows how an Indian contractor runs a job, from the enquiry
+ * to the release of retention, instead of the upstream lead -> design ->
+ * tender -> RFI -> earned-value line. Every stage links to the page that does
+ * that work today; where the app has no dedicated page the description says
+ * so and the chip opens the nearest page. The upstream map is kept above as
+ * UPSTREAM_JOURNEY_* for reference.
+ */
+export const INDIA_JOURNEY_ARCS: readonly JourneyArc[] = [
+  {
+    key: 'plan',
+    nameKey: 'journey.in.arc.win',
+    name: 'Win the work',
+    descKey: 'journey.in.arc.win_sub',
+    desc: 'Enquiry, estimate on the schedule of rates, GST quotation, work order.',
+  },
+  {
+    key: 'procure',
+    nameKey: 'journey.in.arc.execute',
+    name: 'Execute and measure',
+    descKey: 'journey.in.arc.execute_sub',
+    desc: 'Mobilise materials and record the work done in the measurement book.',
+  },
+  {
+    key: 'deliver',
+    nameKey: 'journey.in.arc.bill',
+    name: 'Bill and get paid',
+    descKey: 'journey.in.arc.bill_sub',
+    desc: 'RA bills with statutory deductions, final bill and retention release.',
+  },
+] as const;
+
+export const INDIA_JOURNEY_PHASES: readonly JourneyPhase[] = [
+  {
+    key: 'enquiry',
+    arc: 'plan',
+    icon: Target,
+    nameKey: 'journey.in.enquiry.name',
+    name: 'Enquiry & site visit',
+    descKey: 'journey.in.enquiry.desc',
+    desc: 'Log the enquiry and the client in CRM and note the site visit on the lead (there is no separate site-visit form).',
+    modules: [
+      { to: '/crm', labelKey: 'journey.in.chip.enquiries', label: 'Enquiries (CRM)' },
+      { to: '/contacts', labelKey: 'journey.in.chip.clients', label: 'Clients' },
+    ],
+    extraRoutes: ['/projects'],
+  },
+  {
+    key: 'estimate',
+    arc: 'plan',
+    icon: Calculator,
+    nameKey: 'journey.in.estimate.name',
+    name: 'Estimate on SOR',
+    descKey: 'journey.in.estimate.desc',
+    desc: 'Price the BOQ on schedule-of-rates rates (CPWD DSR / State PWD SSR) held in the cost database; quantities measured per IS 1200.',
+    modules: [
+      { to: '/boq', labelKey: 'journey.in.chip.boq', label: 'BOQ' },
+      { to: '/costs', labelKey: 'journey.in.chip.rates', label: 'Rates (cost database)' },
+      { to: '/quantities', labelKey: 'journey.in.chip.quantities', label: 'Quantities' },
+      { to: '/takeoff', labelKey: 'journey.in.chip.takeoff', label: 'Drawing take-off' },
+    ],
+    extraRoutes: [
+      '/catalog',
+      '/assemblies',
+      '/ai-estimate',
+      '/ai-estimator',
+      '/dwg-takeoff',
+      '/match-elements',
+      '/validation',
+    ],
+  },
+  {
+    key: 'quotation',
+    arc: 'plan',
+    icon: IndianRupee,
+    nameKey: 'journey.in.quotation.name',
+    name: 'Quotation with GST',
+    descKey: 'journey.in.quotation.desc',
+    desc: 'Export the BOQ as a GST quotation PDF (BOQ, Export, PDF): 18% as CGST 9% + SGST 9% intra-state, IGST 18% inter-state.',
+    modules: [
+      { to: '/boq', labelKey: 'journey.in.chip.quotation', label: 'Quotation (BOQ PDF)' },
+      { to: '/tax-rates', labelKey: 'journey.in.chip.gst', label: 'GST rates' },
+    ],
+  },
+  {
+    key: 'award',
+    arc: 'plan',
+    icon: FilePenLine,
+    nameKey: 'journey.in.award.name',
+    name: 'Work order & agreement',
+    descKey: 'journey.in.award.desc',
+    desc: 'Record the work order / LOI and the agreement as a contract; EMD and security deposit go in its securities (as a bank guarantee).',
+    modules: [
+      { to: '/contracts', labelKey: 'journey.in.chip.contracts', label: 'Work orders (contracts)' },
+      { to: '/tendering', labelKey: 'journey.in.chip.tenders', label: 'Tenders' },
+    ],
+    extraRoutes: ['/bid-management', '/rfq-bidding', '/signing'],
+  },
+  {
+    key: 'mobilise',
+    arc: 'procure',
+    icon: PackageCheck,
+    nameKey: 'journey.in.mobilise.name',
+    name: 'Indent, PO & GRN',
+    descKey: 'journey.in.mobilise.desc',
+    desc: 'Mobilisation: raise the purchase order and record the goods receipt (GRN). There is no separate material-indent form yet; the PO is raised from the BOQ.',
+    modules: [
+      { to: '/procurement', labelKey: 'journey.in.chip.po_grn', label: 'Purchase orders & GRN' },
+      { to: '/site-inventory', labelKey: 'journey.in.chip.stores', label: 'Site stores' },
+      { to: '/subcontractors', labelKey: 'journey.in.chip.subcontractors', label: 'Subcontractors' },
+    ],
+    extraRoutes: ['/supplier-catalogs', '/equipment', '/resources', '/schedule', '/tasks'],
+  },
+  {
+    key: 'measure',
+    arc: 'procure',
+    icon: BookOpenCheck,
+    nameKey: 'journey.in.measure.name',
+    name: 'Measurement Book',
+    descKey: 'journey.in.measure.desc',
+    desc: 'Record the joint measurement of work done per BOQ item for each period (IS 1200). The Progress page is the measurement book.',
+    modules: [
+      { to: '/progress', labelKey: 'journey.in.chip.mb', label: 'Measurement book (Progress)' },
+      { to: '/daily-diary', labelKey: 'journey.in.chip.diary', label: 'Site diary' },
+      { to: '/inspections', labelKey: 'journey.in.chip.inspections', label: 'Inspections' },
+    ],
+    extraRoutes: [
+      '/field-reports',
+      '/field-time',
+      '/photos',
+      '/rfi',
+      '/submittals',
+      '/ncr',
+      '/qms',
+      '/safety',
+      '/changeorders',
+      '/variations',
+    ],
+  },
+  {
+    key: 'rabill',
+    arc: 'deliver',
+    icon: ClipboardList,
+    nameKey: 'journey.in.rabill.name',
+    name: 'RA bill',
+    descKey: 'journey.in.rabill.desc',
+    desc: 'Running Account bill: this period and to date at BOQ rates, as a progress claim on the contract. The client QS certifies it (typically 30-45 days to payment).',
+    modules: [
+      { to: '/contracts?tab=claims', labelKey: 'journey.in.chip.ra_bills', label: 'RA bills (progress claims)' },
+      { to: '/payment-clock', labelKey: 'journey.in.chip.payment_clock', label: 'Payment due dates' },
+    ],
+    extraRoutes: ['/contracts/claims', '/cvr', '/project-controls'],
+  },
+  {
+    key: 'deductions',
+    arc: 'deliver',
+    icon: Percent,
+    nameKey: 'journey.in.deductions.name',
+    name: 'Deductions',
+    descKey: 'journey.in.deductions.desc',
+    desc: 'On each RA bill: retention / security deposit (on the claim), TDS u/s 194C (1% individual/HUF, 2% others, on value excl. GST), GST-TDS 2% for government clients, BOCW cess 1% (under Withholding tax), advance recovery.',
+    modules: [
+      { to: '/tax-withholding', labelKey: 'journey.in.chip.tds', label: 'TDS, cess (withholding)' },
+      { to: '/finance', labelKey: 'journey.in.chip.finance', label: 'Finance' },
+    ],
+  },
+  {
+    key: 'final',
+    arc: 'deliver',
+    icon: KeyRound,
+    nameKey: 'journey.in.final.name',
+    name: 'Final bill & DLP',
+    descKey: 'journey.in.final.desc',
+    desc: 'Final bill (final account), the defect liability period, then release of the retention / security deposit.',
+    modules: [
+      { to: '/contracts?tab=final_accounts', labelKey: 'journey.in.chip.final_bill', label: 'Final bill' },
+      { to: '/defects-liability', labelKey: 'journey.in.chip.dlp', label: 'Defect liability period' },
+      { to: '/closeout', labelKey: 'journey.in.chip.closeout', label: 'Closeout' },
+    ],
+    extraRoutes: ['/commissioning', '/punchlist', '/punch-list', '/assets'],
+  },
+] as const;
+
+/** The journey this deployment shows: the Indian one. */
+export const JOURNEY_ARCS: readonly JourneyArc[] = INDIA_JOURNEY_ARCS;
+export const JOURNEY_PHASES: readonly JourneyPhase[] = INDIA_JOURNEY_PHASES;
 
 /** Cross-cutting modules that help across every phase rather than sitting on
  *  the line. Shown as an "always on" band under the journey. */

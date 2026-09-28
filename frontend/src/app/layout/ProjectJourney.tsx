@@ -242,9 +242,9 @@ function ProjectJourneyPanel({
                 {t('journey.title', { defaultValue: 'Your project journey' })}
               </h2>
               <p className="mt-0.5 text-xs leading-relaxed text-content-secondary">
-                {t('journey.subtitle', {
+                {t('journey.in.subtitle', {
                   defaultValue:
-                    'Every stage of a construction project, from first lead to handover, and where you are right now. Pick any step to jump there.',
+                    'How an Indian contractor runs a job, from the enquiry to the release of retention, and where you are right now. Pick any step to jump there.',
                 })}
               </p>
             </div>

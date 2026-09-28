@@ -395,6 +395,12 @@ export function ProgressClaimDetailPage() {
         />
       </div>
 
+      {/* DM Constructions (release 5): an Indian RA bill's statutory
+          deductions. The claim itself deducts retention only; TDS u/s 194C,
+          BOCW cess and GST-TDS are recorded as Withholding tax deductions and
+          summarised on the claim's metadata (ra_bill), shown here read-only. */}
+      <RaBillDeductions claim={claim} />
+
       {/* Line items */}
       <Card padding="sm">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-content-secondary">
@@ -482,5 +488,102 @@ function KPI({ label, value }: { label: React.ReactNode; value: React.ReactNode 
       </p>
       <p className="mt-0.5 text-sm font-semibold text-content-primary">{value}</p>
     </div>
+  );
+}
+
+interface RaBillDeduction {
+  label: string;
+  basis?: string;
+  rate_pct?: number | string;
+  base_amount?: number | string;
+  amount: number | string;
+}
+
+/** Statutory deductions of an Indian RA bill, from ``metadata.ra_bill``. */
+function RaBillDeductions({ claim }: { claim: ProgressClaimItem }) {
+  const { t } = useTranslation();
+  const ra = (claim.metadata?.ra_bill ?? null) as {
+    title?: string;
+    mb_reference?: string;
+    deductions?: RaBillDeduction[];
+    total_deductions?: number | string;
+    net_payable?: number | string;
+    note?: string;
+  } | null;
+  if (!ra || !Array.isArray(ra.deductions) || ra.deductions.length === 0) return null;
+  const cur = claim.currency || undefined;
+  return (
+    <Card padding="sm" data-testid="ra-bill-deductions">
+      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-content-secondary">
+        {ra.title ||
+          t('contracts_claim.ra_deductions_title', { defaultValue: 'RA bill deductions' })}
+      </p>
+      {ra.mb_reference && (
+        <p className="mb-2 text-xs text-content-tertiary">{ra.mb_reference}</p>
+      )}
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="text-left text-[10px] uppercase tracking-wide text-content-tertiary">
+            <th className="py-1 pr-2 font-medium">
+              {t('contracts_claim.ra_col_deduction', { defaultValue: 'Deduction' })}
+            </th>
+            <th className="py-1 pr-2 font-medium">
+              {t('contracts_claim.ra_col_basis', { defaultValue: 'On' })}
+            </th>
+            <th className="py-1 pr-2 text-right font-medium">
+              {t('contracts_claim.ra_col_rate', { defaultValue: 'Rate' })}
+            </th>
+            <th className="py-1 text-right font-medium">
+              {t('contracts_claim.ra_col_amount', { defaultValue: 'Amount' })}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {ra.deductions.map((d) => (
+            <tr key={d.label} className="border-t border-border-light">
+              <td className="py-1.5 pr-2 text-content-primary">{d.label}</td>
+              <td className="py-1.5 pr-2 text-xs text-content-secondary">
+                {d.basis ?? ''}
+                {d.base_amount != null && (
+                  <>
+                    {' '}
+                    <MoneyDisplay amount={toNum(d.base_amount)} currency={cur} />
+                  </>
+                )}
+              </td>
+              <td className="py-1.5 pr-2 text-right tabular-nums">
+                {d.rate_pct != null ? `${toNum(d.rate_pct)}%` : ''}
+              </td>
+              <td className="py-1.5 text-right tabular-nums">
+                <MoneyDisplay amount={toNum(d.amount)} currency={cur} />
+              </td>
+            </tr>
+          ))}
+          {ra.total_deductions != null && (
+            <tr className="border-t border-border-light font-semibold">
+              <td className="py-1.5 pr-2" colSpan={3}>
+                {t('contracts_claim.ra_total_deductions', { defaultValue: 'Total deductions' })}
+              </td>
+              <td className="py-1.5 text-right tabular-nums">
+                <MoneyDisplay amount={toNum(ra.total_deductions)} currency={cur} />
+              </td>
+            </tr>
+          )}
+          {ra.net_payable != null && (
+            <tr className="border-t border-border-light font-semibold text-oe-blue">
+              <td className="py-1.5 pr-2" colSpan={3}>
+                {t('contracts_claim.ra_net_payable', {
+                  defaultValue: 'Net payable to contractor',
+                })}
+              </td>
+              <td className="py-1.5 text-right tabular-nums" data-testid="ra-net-payable">
+                <MoneyDisplay amount={toNum(ra.net_payable)} currency={cur} />
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+      {ra.note && <p className="mt-2 text-xs text-content-tertiary">{ra.note}</p>}
+    </Card>
   );
 }

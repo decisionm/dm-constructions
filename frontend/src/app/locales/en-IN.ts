@@ -5,7 +5,14 @@
 // en.ts. Dates (DD/MM/YYYY) and lakh/crore grouping come from the locale tag.
 import enGB from './en-GB';
 
-const resource = { translation: { ...enGB.translation } } as {
+// Release 5: Indian site wording where the upstream term is American.
+const IN_OVERRIDES: Record<string, string> = {
+  'rfi.title': 'Technical queries (RFI)',
+  'nav.rfi': 'Technical query / RFI',
+  'cases.answer_an_rfi.title': 'Answer a technical query (RFI)',
+};
+
+const resource = { translation: { ...enGB.translation, ...IN_OVERRIDES } } as {
   translation: Record<string, string>;
 };
 

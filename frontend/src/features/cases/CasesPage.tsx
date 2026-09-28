@@ -67,7 +67,8 @@ import {
 import { fmtList } from "@/shared/lib/formatters";
 import { useNearViewport } from "@/shared/hooks/useNearViewport";
 import { useActiveProjectId } from "@/shared/hooks/useActiveProjectId";
-import { useInstalledPacks } from "@/shared/hooks/usePartnerPack";
+import { useInstalledPacks, usePartnerPack } from "@/shared/hooks/usePartnerPack";
+import { packCountryCode } from "@/shared/lib/regionalPack";
 import { useProjectContextStore } from "@/stores/useProjectContextStore";
 import { projectsApi } from "@/features/projects/api";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -132,6 +133,7 @@ import type {
 
 import { regionDisplayName } from "./regions";
 import { homeMarketFirst, homeMarketForLanguage } from "./homeMarket";
+import { indiaLibraryOrder } from "./indiaCases";
 import { countCasesByMarket, orderMarkets } from "./marketCases";
 import { compareNames } from '@/shared/lib/collator';
 
@@ -434,9 +436,19 @@ function CasesList() {
   // readers whose language names a market. Nor does it write anything: the
   // hub's market pick is persisted (`oe_cases_region`), and a stored pick this
   // never touches is a stored pick this can never overwrite.
+  // DM Constructions: the active regional pack (India) answers first, so a
+  // browser left on English (US) still reads the Indian cases first.
+  const { data: activePack } = usePartnerPack();
+  const activePackCountry =
+    activePack?.active && activePack.manifest
+      ? packCountryCode(activePack.manifest)?.toUpperCase() ?? null
+      : null;
   const homeMarket = useMemo(
-    () => homeMarketForLanguage(i18n.language, regions),
-    [i18n.language, regions],
+    () =>
+      activePackCountry && regions.includes(activePackCountry)
+        ? activePackCountry
+        : homeMarketForLanguage(i18n.language, regions),
+    [i18n.language, regions, activePackCountry],
   );
   // The shelf in reading order: the reader's own market first, then the rest
   // by how many cases they hold. It was sorted by ISO code, which in a German
@@ -639,6 +651,11 @@ function CasesList() {
     // catalogue behind it in the lifecycle order it always had. Not when the
     // shortlist is showing - that list is the set this reader curated for this
     // job, and re-ordering somebody's own shelf by their language is noise.
+    // DM Constructions: an Indian workspace reads the Indian playbooks first,
+    // then the universal cases that fit its workflow, US/EU-only ones last.
+    if (!showOnlyPinned && homeMarket === "IN") {
+      return indiaLibraryOrder(matched, (pb) => caseNumbers.get(pb.id) ?? 0);
+    }
     return homeMarketFirst(
       matched,
       showOnlyPinned ? null : homeMarket,

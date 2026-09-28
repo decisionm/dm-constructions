@@ -52,6 +52,13 @@ import { iconFor } from '@/features/cases/icons';
 import { CaseArt } from '@/features/cases/CaseArt';
 import { useDashboardLayoutStore } from '@/stores/useDashboardLayoutStore';
 import { DASHBOARD_WIDGET_BY_ID } from './widgetRegistry';
+import { usePartnerPack } from '@/shared/hooks/usePartnerPack';
+import { packCountryCode } from '@/shared/lib/regionalPack';
+import {
+  indiaCaseRank,
+  indiaPopularAllowed,
+  isIndiaWorkspace,
+} from '@/features/cases/indiaCases';
 
 /** This card's id in the dashboard widget registry. Its width and its
  *  visibility are both stored against it, so the id is the whole link between
@@ -157,6 +164,12 @@ export function DashboardCasesCard() {
   const runs = useCasesStore((s) => s.runs);
   const roles = useCasesStore((s) => s.roles);
   const companyTypes = useCasesStore((s) => s.companyTypes);
+  // DM Constructions: an Indian workspace leads with the Indian playbooks and
+  // leaves US/EU-only cases out of this row (they stay in the full library).
+  const { data: packData } = usePartnerPack();
+  const packCountry =
+    packData?.active && packData.manifest ? packCountryCode(packData.manifest) : null;
+  const india = isIndiaWorkspace(packCountry, i18n.language);
 
   // Width and visibility both come from the dashboard's own layout store: the
   // same values Customize writes, persisted under `oe.dashboard-layout`, so
@@ -177,7 +190,8 @@ export function DashboardCasesCard() {
   // whole catalogue and windowed afterwards, so changing the width re-slices
   // the same order instead of re-ranking it.
   const ranked = useMemo(() => {
-    const scored = PLAYBOOKS.map((pb) => {
+    const pool = india ? PLAYBOOKS.filter(indiaPopularAllowed) : PLAYBOOKS;
+    const scored = pool.map((pb) => {
       let best = 0;
       for (const [k, prog] of Object.entries(runs)) {
         if (k === pb.id || k.startsWith(`${pb.id}::`)) {
@@ -198,13 +212,18 @@ export function DashboardCasesCard() {
     });
     scored.sort((a, b) => {
       if (a.inProgress !== b.inProgress) return a.inProgress ? -1 : 1;
+      if (india) {
+        const ar = indiaCaseRank(a.pb.id);
+        const br = indiaCaseRank(b.pb.id);
+        if (ar !== br) return ar - br;
+      }
       const am = a.roleMatches * 2 + a.companyMatches;
       const bm = b.roleMatches * 2 + b.companyMatches;
       if (am !== bm) return bm - am;
       return a.pb.order - b.pb.order;
     });
     return scored;
-  }, [runs, roles, companyTypes]);
+  }, [runs, roles, companyTypes, india]);
 
   const picks = useMemo(() => ranked.slice(0, shape.count), [ranked, shape.count]);
 
